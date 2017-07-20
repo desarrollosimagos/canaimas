@@ -1,0 +1,61 @@
+
+{% block page_title %}Nuevo Usuario{% endblock %}
+{% if form.non_field_errors %}
+<div class="panel">
+  {{ form.non_field_errors }}
+</div>
+{% endif %}
+
+{% block content %}
+<!-- ************************************************************* -->
+<form action="." method="POST" enctype="multipart/form-data" class="form-horizontal" autocomplete="off">
+	
+  {% csrf_token %}
+  <div class="jumbotron" style="width:990px;margin-left:30px;">
+    {% if mensaje%}
+      <div class="alert alert-danger" style="width:300px;margin-left:10px;">
+       {{mensaje}}
+      </div>
+    {% endif %}
+  <div class="container">
+    <div style="margin-top:30px;margin-left:300px;">
+      <div class="form-group">
+	<div class="col-sm-6" style="margin-left:10px;">
+	  <div class="alert alert-info" style="text-align:center;">
+	    Nuevo Usuario
+	  </div>
+	</div>
+      </div>
+      <div class="form-group">
+	<label class="col-sm-2 control-label" for="username">Usuario</label>
+	<div class="col-sm-4">
+	  <input type="text" required class="form-control" id="username" name="username" placeholder="Usuario">
+	</div>
+      </div>
+      <div class="form-group">
+	<label class="col-sm-2 control-label" for="password">Contraseña</label>
+	<div class="col-sm-4">
+	  <input type="password" required class="form-control" id="password" name="password" placeholder="Contraseña">
+	</div>
+	<div class="form-group">
+	  <div class="col-sm-5" style="margin-left:95px;margin-top:15px;">
+	    <button class="btn btn-primary" id="enviar">Ingresar</button>
+	    <button class="btn btn-primary" id="new_user">Nuevo</button>
+	    <button class="btn btn-danger" id="reset">Borrar</button>
+	  </div>
+	</div>
+      </div>
+	  </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+{% block extra_head %}
+  <style>
+  .listeningFile {
+    position: absolute;
+    left:-9999px;
+  }
+  </style>
+{% endblock %}
+<!-- ************************************************************* -->

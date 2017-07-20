@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+{% load templatag_grupos %}
+{% ifusergroup Topologia %}
+
+<script>
+$(document).ready(function(){
+    var TUbch = $('#tab_estado').dataTable({
+        "iDisplayLength": 13,
+        "iDisplayStart": 0,
+        "sPaginationType": "full_numbers",
+        "aLengthMenu": [10, 20, 30],
+        "oLanguage": {"sUrl": "/static/js/es.txt"},
+        "aoColumns": [
+            {"sClass": "registro center", "sWidth": "8%"},
+            {"sClass": "registro left", },
+            {"sWidth": "3%", "bSortable": false, "sClass": "center sorting_false", "bSearchable": false},
+            {"sWidth": "3%", "bSortable": false, "sClass": "center sorting_false", "bSearchable": false}
+        ]
+    });
+    $('#enviar').click(function(){
+        url = '/menu/topologia/estados/registrarestado/'
+        window.location = url
+    })   
+
+});
+</script>
+	<div class="row-fluid" >
+		<div class="container mainbody-section text-center"  style="width:100%;">
+			<button role="button" class="btn btn-danger" style="font-weight: bold;font-size: 13px" id="enviar" >
+				&nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;Agregar Estado
+			</button>
+			<table style="width:100%;" border="0" align="center" cellspacing="1" id="tab_estado" align="center"
+			class="panel panel-warning  table table-bordered table-striped table-hover table-condensed dt-responsive table-responsive" style="width:30%">
+				<thead style="font-size: 16px">
+					<tr style="background-color: #C71C22">
+						<th style='color: white;text-align: center' colspan="4">Listado de Estados</th>
+					</tr>
+					<tr class="danger">
+						<th style='text-align: center'>Código</th>
+						<th style='text-align: center'>Estado</th>
+						<th style='text-align: center'>Editar</th>
+						<th style='text-align: center'>Borrar</th>
+					</tr>
+				</thead>
+				<tbody>    
+					{% for m in listar_estado %}
+
+					<tr style="font-size: 14px; " >
+						<td>{{m.cod_estado}} </td>
+						<td>{{m.estado}}</td>
+						<td style='text-align: center'>
+							<a href="{% url "editar_estado" m.id %}"><img style="width:25px;height: 25px" src="{{ STATIC_URL }}img/edit.png"/></a>
+						</td>
+						<td style='text-align: center'>
+							<a href="{% url "borrar_estado" m.id %}"><img style="width:25px;height: 25px" src="{{ STATIC_URL }}img/borrar.png"/></a>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<br/>
+{% else %}
+<p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+{% endifusergroup %}
+
+{% endblock %}

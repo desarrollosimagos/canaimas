@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block contenido %}
+<html>
+<head>
+
+</head>
+<script type="text/javascript">
+	
+</script>
+<body>
+	<header>
+    </header>
+	<center>
+	<div>
+		<img src="{{ STATIC_URL }}img/IMAGEN-CANAIMA-001.png" style="width: 50%"/>
+		<br/>
+		<br/>
+		<h4 style="color: #F70C00; font-size: 200%"><p>Buen día {{user|upper}}, tu última conexión: {{user.last_login | date:'d-m-Y h:i a'}}</p></h4>
+	</div>
+	</center>
+</body>
+</html>
+{% endblock %}

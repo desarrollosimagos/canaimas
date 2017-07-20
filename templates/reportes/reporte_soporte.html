@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% block contenido %}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+<script src="{{ STATIC_URL }}js/exporting.js"></script>
+<script src="{{ STATIC_URL }}js/drilldown.js"></script>
+<script type="text/javascript">
+    var chart;
+
+    $(document).ready(function(){
+		var startDate = new Date('01/01/2015');
+		var FromEndDate = new Date();
+		var ToEndDate = new Date();
+		
+		ToEndDate.setDate(ToEndDate.getDate()+365);
+		
+		$('#from_date').datepicker({
+			format: "dd-mm-yyyy",
+			endDate: FromEndDate,
+			language: "es",
+			//startView: 1,
+			autoclose: true,
+			startDate: "-1y"
+		})
+		.on('changeDate', function(selected){
+			startDate = new Date(selected.date.valueOf());
+			startDate.setDate(startDate.getDate(new Date(selected.date.valueOf())));
+			$('#to_date').datepicker('setStartDate', startDate);
+		}); 
+		$('#to_date')
+			.datepicker({
+			format: "dd-mm-yyyy",
+			startDate: startDate,
+			endDate: ToEndDate,
+			autoclose: true,
+			language: "es"
+		})
+		.on('changeDate', function(selected){
+			FromEndDate = new Date(selected.date.valueOf());
+			FromEndDate.setDate(FromEndDate.getDate(new Date(selected.date.valueOf())));
+			$('#from_date').datepicker('setEndDate', FromEndDate);
+		});
+		
+		
+		
+		$('#id_tipo').change(function() {
+			var tipo = $(this).val();
+			if (tipo == '2') { //Por Status
+				$('#id_status').select2('val', '0');
+				$('#id_status').prop('disabled',false)
+			}else{ //Todo
+				$('#id_status').select2('val', '0');
+				$('#id_status').prop('disabled',true)
+				
+			}
+		});
+        $('#pdf_soporte').click(function(){
+            var id_inst = $('#id_institucion').find('option').filter(':selected').val()
+			var tipo = $('#id_tipo').find('option').filter(':selected').val()
+			var status = $('#id_status').find('option').filter(':selected').val()
+			var desde = $('#from_date').val()
+			var hasta = $('#to_date').val()
+
+            if (desde == '' && hasta == '') {
+				bootbox.alert('Debe Seleccionar la fecha para exportar el PDF', function() {	    
+					$('#from_date,#to_date').focus();
+				});
+			}else if (id_inst == 0) {
+                bootbox.alert('Debe Seleccionar la Institución para poder exportar el PDF', function() {	    
+					$('#id_institucion').select2('open');
+				});
+            }else if (tipo == 0) {
+                bootbox.alert('Debe Seleccionar tipo de reporte para poder exportar el PDF', function() {	    
+					$('#id_tipo').select2('open');
+				});
+			}else if ((tipo == 2 ) && status == 0)  {
+                bootbox.alert('Debe Seleccionar el estatus de la solicitud  para poder exportar el PDF', function() {	    
+					$('#id_status').select2('open');
+				});
+            }else{
+                url = 'soportesgeneral/?tipo='+tipo+'&id_inst='+id_inst+'&desde='+desde+'&hasta='+hasta
+				if (tipo == 2) {
+					url += '&status='+status
+				}else{
+					url = url
+				}
+                window.open(url); 
+            }
+        });
+
+        var chart; 
+        $("#id_status,#id_tipo,#id_institucion").select2();
+		
+        $('#grafico_soporte').click(function(){
+
+			var id_inst = $('#id_institucion').find('option').filter(':selected').val()
+			var tipo = $('#id_tipo').find('option').filter(':selected').val()
+			var status = $('#id_status').find('option').filter(':selected').val()
+			var estatus = $('#id_status').find('option').filter(':selected').text()
+			var desde = $('#from_date').val()
+			var hasta = $('#to_date').val()
+
+            titulo = "Cantidad de equipos atendidos"
+			sub_titulo = "Del "+desde+" al "+hasta
+			
+			if (desde == '' && hasta == '') {
+				bootbox.alert('Debe Seleccionar la fecha para exportar el PDF', function() {	    
+					$('#from_date,#to_date').focus();
+				});
+			}else if (id_inst == 0) {
+                bootbox.alert('Debe Seleccionar la Institución para poder generar la gráfica', function() {	    
+					$('#id_institucion').select2('open');
+				});
+            }else if (tipo == 0) {
+                bootbox.alert('Debe Seleccionar tipo de reporte para poder generar la gráfica', function() {	    
+					$('#id_tipo').select2('open');
+				});
+			}else if ((tipo == 2 ) && status == 0)  {
+                bootbox.alert('Debe Seleccionar el estatus de la solicitud  para poder generar la gráfica', function() {	    
+					$('#id_status').select2('open');
+				});
+			}
+            else {
+				if (tipo == 1) {
+					var data_send = {'id_inst':id_inst,'csrfmiddlewaretoken': "{{ csrf_token }}", 'id_inst':id_inst,
+										'tipo':tipo, 'from_date':desde, 'to_date':hasta }
+				}else {
+					sub_titulo = sub_titulo+" (Estatus: "+estatus+")"
+					var data_send = {'id_inst':id_inst,'csrfmiddlewaretoken': "{{ csrf_token }}", 'id_inst':id_inst, 'status':status,
+									'tipo':tipo, 'from_date':desde, 'to_date':hasta }
+				}
+				
+				$.post('',data_send, function(data) {
+
+					var lista_json = []
+                    var lista_json2 = []
+                    var total_can = 0;
+                    $.each(data, function(i){
+                        cand = []
+                        total_can += data[i].total    
+                    })
+                    var voto_cand = 0;
+                    $.each(data, function(i, obj){
+
+						cand = []
+						cand[0] = data[i].nombre
+						cand[1] = data[i].total
+						
+						cand2 = []
+						cand2[0] = data[i].modelos_nombre
+						cand2[1] = parseFloat(((data[i].total * 100)/(total_can)).toFixed(2));
+						porcentaje = cand2[1]
+						lista_json.push(cand);
+						lista_json2.push(cand2);
+                    })
+                    
+                    if (lista_json != '' ) {
+                        
+                        $('#container1').highcharts({
+                        
+                            chart: {
+                                plotBackgroundColor: null,
+                                plotBorderWidth: null,
+                                plotShadow: false,
+                            },
+                            title: {
+                                text: titulo,
+                            },
+							subtitle: {
+                                text: sub_titulo
+                            },
+                            tooltip: {
+                                pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+                            },
+                            plotOptions: {
+                                pie: {
+                                    allowPointSelect: true,
+                                    cursor: 'pointer',
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '<b>Canaimitas</b>: (<span style="color:#FF0000">{point.y}</span>)  {point.percentage:.2f} %',
+                                        style: {
+                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                            }
+                                    },
+                                    showInLegend: true
+                                }
+                            },
+                            series: [{
+                                type: 'pie',
+                                name: 'Porcentaje por modelos de Canaimas',
+                                data: lista_json,
+                            }]
+                        });
+						
+                        console.log(lista_json2)
+                        $('#container2').highcharts({
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: titulo,
+                            },
+                            subtitle: {
+                                text: sub_titulo
+                            },
+                            xAxis: {
+                                type: 'category'
+                            },
+                            yAxis: {
+                                title: {
+                                    text: ''
+                                    //texto lateral                                    
+                                }
+                            },
+                            legend: {
+                                enabled: false
+                            },
+                            plotOptions: {
+                                series: {
+                                    borderWidth: 0,
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '<span style="color:#FF0000">{point.y}</span> %',
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                                pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b><br/>'
+                            },
+            
+                            series: [{
+                                name: name,
+                                colorByPoint: true,
+                                data: lista_json2,
+                            }], 
+                        });
+                    }
+                    else{
+                        bootbox.alert('Disculpe aun no hay registros para esta fecha o institución', function() {	    
+                            $('#container1,#container2').html('')
+                        });
+
+                    }
+                },'json');
+                
+            }
+        })
+		
+		$('#limpiar').click(function(){
+			$('select').select2('val',0)
+            $('input[type="text"],textarea').val('')
+		})
+    })
+</script>
+
+{% load templatag_grupos %}
+{% ifusergroup Soporte %}
+	
+<body>
+	<div style="width: 100%;text-transform:uppercase;box-shadow: 0 1px 5px rgba(0,0,0,.85);text-align: left" class="panel panel-danger">
+        <div class="panel-heading text-center" style="font-size: 20px;font-weight: bold">
+            Generación de Reportes (Soporte) 
+        </div>
+		<fieldset><legend class="titulo" style="font-size: 20px;font-weight: bold">&nbsp;&nbsp;&nbsp;&nbsp;Seleccione rango de fecha y tipo de reporte</legend></fieldset>
+        <div class="panel-body">
+            <div class="form-group col-xs-1"><label>Desde</label></div>
+            <div class="form-group col-xs-2">
+				<input id="from_date" placeholder="SELECCIONE" contenteditable="false" type="text">
+            </div>
+			<div class="form-group col-xs-1"><label>Hasta</label></div>
+            <div class="form-group col-xs-2">
+				<input id="to_date" placeholder="SELECCIONE" contenteditable="false" type="text">
+            </div>
+			<div class="col-xs-1"><label>Institución</label></div>
+            <div class="col-xs-5">
+				<select style="width: 100%;font-size: 13px" id="id_institucion" >
+					<option value="0">SELECCIONE</option>
+					{% for i in listar_institucion %}
+						<option value='{{i.id}}'>{{ i.nom_institucion }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<br/><br/><br/>
+			<div class="col-xs-1"><label>Tipo</label>
+            </div>
+            <div class="col-xs-2">
+				<select style="width: 100%;font-size: 13px" id="id_tipo" >
+					<option value='0'>SELECCIONE</option>
+					<option value='1'>GENERAL</option>
+					<option value='2'>POR ESTATUS</option>
+				</select>
+			</div>
+			<div class="col-xs-1"><label>Estatus</label></div>
+            <div class="col-xs-2">
+				<select style="width: 100%;font-size: 13px" id="id_status" >
+					<option value='0'>SELECCIONE</option>
+					<option value='2'>REMITIDA</option>
+					<option value='3'>REPARADA</option>
+				</select>
+			</div>
+        </div>
+		<div class="panel-body" style="text-align: left;font-weight: bold">
+			<br/><br/>
+			<div class="col-xs-5">
+				<button role="button" id="grafico_soporte" style="font-weight: bold;" class="btn btn-danger">
+					<span class="glyphicon glyphicon-stats"></span>&nbsp;Gráfico&nbsp;
+				</button>
+				<button role="button" id="pdf_soporte" style="font-weight: bold;"  class="btn btn-danger">
+					<span class="glyphicon glyphicon-file"></span>&nbsp;PDF
+				</button>
+				<button type="reset" id="limpiar" style="font-weight: bold;font-size: 13px" class="btn btn-danger">
+					&nbsp;<span class="glyphicon glyphicon-retweet"></span>&nbsp;&nbsp;Limpiar
+				</button>
+			</div>
+		</div>
+		
+		<div id="id_graficas" style="width: 100%">
+			<div style="float: left;width: 50%;">
+				<div id="container1" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+			</div>
+			<div style="float: left;width: 50%;">
+				<div id="container2" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+			</div>
+		</div>
+		<div style="width: 50%">
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+		</div>
+    </div> 
+</body>
+{% else %}
+<p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+{% endifusergroup %}   
+</html>
+{% endblock %}
+
+
+

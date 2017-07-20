@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block contenido %}
+<html>
+<head>
+    <title>Registrar Municipios</title>
+</head>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#id_cir_estado").select2();
+    $('#municipio').alpha({allow:" "}); //Valida solo valores tipo texto
+    $('#cod_municipio').numeric(); //Valida solo valores tipo texto
+    $('#registrar_mun').click(function(e){ //Valida al guardar que el rago no sea menor 5 caracteres
+	e.preventDefault();
+	
+	$('input').on({
+	    keypress: function() {
+		$(this).parent('div').removeClass('has-error');
+	    }
+	});
+	var estado    = $('#id_cir_estado').find('option').filter(':selected').val()
+	//var circuito = $('#id_circuito').find('option').filter(':selected').val()
+	
+	if (($('#cod_municipio').val() == '')) {
+	    bootbox.alert('Disculpe, Debe Colocar el Código del Municipio', function() {	    
+		$('#cod_municipio').parent('div').addClass('has-error');
+	    });    
+	}
+	else if (estado == 0) {
+	    bootbox.alert('Disculpe, Debe Seleccionar el Estado', function() {	    
+		$('#id_cir_estado').select2('open');
+	    }); 
+	}
+	else if (($('#municipio').val() == '')) {
+	    bootbox.alert('Disculpe, Debe Colocar el Nombre del Municipio', function() {	    
+		$('#municipio').parent('div').addClass('has-error');
+	    }); 
+	}
+	//Valida que el campo no este vacio
+        else if($('#municipio').val() == null ||  $('#municipio').val().length == 0 || /^\s+$/.test($('#municipio').val())) {
+            bootbox.alert('Disculpe, Disculpe no esta registrando nada', function() {	    
+		$('#municipio').parent('div').addClass('has-error');
+	    });
+        }
+	else if ($('#municipio').val().length < 3) {
+	    bootbox.alert('Disculpe, Nombre invalido (Muy Corto)', function() {	    
+		$('#municipio').parent('div').addClass('has-error');
+	    });
+        }
+        else {
+            $.post('',$('#form_municipio').serialize()+'&bandera=true',function(response){
+		if (response == 'existe_t') {
+		    bootbox.alert('Disculpe, Este Nombre y Código de Municipio ya estan asociados a este Estado', function() {	    
+			$('#municipio').parent('div').addClass('has-error');
+		    });
+		}
+		else if (response == 'existe_c') {
+		    bootbox.alert('Disculpe, Este Código de Municipio ya esta asociado a este Estado', function() {	    
+			$('#cod_municipio').parent('div').addClass('has-error');
+		    });
+		}
+		else if (response == 'existe_n') {
+		    bootbox.alert('Disculpe, Este Nombre de Municipio ya esta asociado a este Estado', function() {	    
+			$('#municipio').parent('div').addClass('has-error');
+		    });
+		}
+		else{
+		    $('#form_municipio').submit(); 
+		}
+	    });
+        }
+    });
+    $('#volver1').click(function(){
+        url = '/menu/topologia/municipios/'
+        window.location = url
+    })
+    $('#limpiar1').click(function(){
+        $('#id_cir_estado').select2('val', '0');
+	//$('#id_circuito').select2('val', '0');
+    })
+});
+</script>
+<style>
+    label{
+        font-weight: bold
+    }
+</style>
+<body>
+    {% load templatag_grupos %}
+    {% ifusergroup Topologia %}
+    <form method="post" id="form_municipio" >
+	{% csrf_token %}
+	
+	<div style="width: 100%;text-transform:uppercase;box-shadow: 0 1px 5px rgba(0,0,0,.85);text-align: left" class="panel panel-danger">
+        <div class="panel-heading">
+			<label style="float: left" class="panel-title " ><a style="color: white" href="/menu/topologia/municipios/" >Municipios</a>
+			> Registrar Municipio</label>
+			<br>
+		</div>
+	    <fieldset><legend class="titulo" style="text-align: center">Datos del Municipio</legend></fieldset>
+	    <br/>
+	    <div class="panel-body">
+			<div class="col-xs-1"><label>Código</label></div>
+			<div class="col-xs-5">
+				<input autofocus="" type='text' required=True maxlength="2" placeholder="Ej: 9" id='cod_municipio' name='cod_municipio' style="width:100%;text-transform:uppercase;">
+			</div>
+			<div class="col-xs-1"><label>Estado</label></div>
+            <div class="col-xs-5" >
+				<select id="id_cir_estado" name="estado" class="form-control select2 input-sm"  required=True>
+				<option value="0">SELECCIONE</option>
+				{% for est in lista_estado %}
+					<option value='{{est.cod_estado}}'>{{est.estado}}</option>
+				{% endfor %}
+				</select>
+			</div>
+        </div>
+            
+	    <div class="panel-body" >
+			<div class="col-xs-1" ><label>Municipio</label></div>
+				<div class="col-xs-5">
+				<input type='text' maxlength="80" placeholder="Nombre del Municipio" id="municipio" name="municipio" style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();"/>
+			</div>
+        </div>
+	    <br/>
+        <div class="row" style="text-align: center">
+			<button type="button" id="volver1" style="font-weight: bold;font-size: 13px" class="btn btn-warning " >
+				&nbsp;<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+			</button>
+			<button type="submit" id="registrar_mun" style="font-weight: bold;font-size: 13px" class="btn btn-danger"/>
+				&nbsp;<span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;Registrar
+			</button>
+			<button type="reset" id="limpiar" style="font-weight: bold;font-size: 13px; background: linear-gradient(#f4eb2f, #e5a32d); color: white " class="btn"/>
+				&nbsp;<span class="glyphicon glyphicon-retweet"></span>&nbsp;&nbsp;Limpiar
+			</button>
+	    </div>
+	    <br/>
+        </div>
+    </form>
+    {% else %}
+    <p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+    {% endifusergroup %}
+	<br>
+</body>
+</html>
+{% endblock %}

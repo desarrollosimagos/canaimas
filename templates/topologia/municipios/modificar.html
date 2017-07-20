@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block contenido %}
+<html>
+<head>
+    <title>Editar Municipio</title>
+</head>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#id_cir_estado").select2();
+    $('#municipio').alpha({allow:" "}); //Valida solo valores tipo texto
+    $('#cod_municipio').numeric(); //Valida solo valores tipo texto
+    $('#registrar').click(function(e){ //Valida al guardar que el rago no sea menor 5 caracteres
+	e.preventDefault();
+	
+	$('select').on({
+	    change: function() {
+		$(this).parent('div').removeClass('has-error');
+	    }
+	});
+	$('input').on({
+	    keypress: function() {
+		$(this).parent('div').removeClass('has-error');
+	    }
+	});
+	
+	
+	var estado    = $('#id_cir_estado').find('option').filter(':selected').val()
+	
+
+	if (($('#municipio').val() == '')) {
+	    bootbox.alert('Disculpe, Debe Colocar el Nombre del Municipio', function() {	    
+		$('#municipio').parent('div').addClass('has-error');
+	    });
+	}
+	//Valida que el campo no este vacio
+        else if($('#municipio').val() == null ||  $('#municipio').val().length == 0 || /^\s+$/.test($('#municipio').val())) {
+	    bootbox.alert('Disculpe, no esta registrando nada', function() {	    
+		$('#municipio').parent('div').addClass('has-error');
+	    });
+        }
+	else if ($('#municipio').val().length < 3) {
+	     bootbox.alert('Disculpe, Nombre invalido (Muy Corto)', function() {	    
+		$('#municipio').parent('div').addClass('has-error');
+	    });
+            
+        }
+        else {
+	    $('#id_cir_estado,#cod_municipio').prop('disabled',false);
+	    $('form').submit();
+	    $('#id_cir_estado,#cod_municipio').prop('disabled',true);
+        }
+    });
+    $('#volver1').click(function(){
+        url = '/menu/topologia/municipios/'
+        window.location = url
+    })
+});
+</script>
+<style>
+    label{
+        font-weight: bold
+    }
+</style>
+<body>
+{% load templatag_grupos %}
+{% ifusergroup Topologia %}
+<form id='formulario' method='post' enctype='multipart/form-data' action=''>{% csrf_token %}
+	<div style="width: 100%;text-transform:uppercase;box-shadow: 0 1px 5px rgba(0,0,0,.85);text-align: left" class="panel panel-danger">
+        <div class="panel-heading">
+			<label style="float: left" class="panel-title " ><a style="color: white" href="/menu/topologia/municipios/" >Municipios</a>
+			> Modificar Municipio</label>
+			<br>
+		</div>
+	    <fieldset><legend class="titulo" style="text-align: center">Datos del Municipio</legend></fieldset>
+	    <br/>
+	    <div class="panel-body">
+                <div class="col-xs-1" ><label>Código</label></div>
+                <div class="col-xs-5">
+		    <input type='text'  maxlength="2" id='cod_municipio' disabled="disabled" name='cod_municipio' value="{{obj_reg_mun.cod_municipio}}">
+		</div>
+		<div class="col-xs-1" ><label>Estado</label></div>
+                <div class="col-xs-5" >
+		    <select id="id_cir_estado" name="estado" disabled="disabled" class="form-control select2 input-sm"  >
+			<option value='0'>------------------------</option>
+			{% for e in lista_estado %}
+			    {% if e.cod_estado == obj_reg_mun.estado_id%}
+				<option value='{{e.cod_estado}}' selected='selected'>{{ e.estado }}</option>
+			    {% endif %}
+			    {% if not e.cod_estado == obj_reg_mun.estado_id %}
+				<option value='{{e.cod_estado}}'>{{ e.estado }}</option>
+			    {% endif %}
+		       {% endfor %}
+		    </select>
+		</div>
+            </div>
+            <div class="panel-body" >
+		<div class="col-xs-1"><label>Municipio</label></div>
+                <div class="col-xs-5">
+		    <input type='text' maxlength="80" id="municipio" name="municipio" value="{{obj_reg_mun.municipio}}" style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();"/>
+		</div>
+            </div>
+	    <br/>
+	    <div class="row" style="text-align: center">
+		<button type="button" id="volver1" style="font-weight: bold;font-size: 13px" class="btn btn-warning " >
+		    &nbsp;<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+		</button>
+		<button type="submit" id="registrar" style="font-weight: bold;font-size: 13px" class="btn btn-danger"/>
+		    &nbsp;<span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;Guardar Cambios
+		</button>
+	    </div>
+	<br/>
+	
+        </div>
+    </form>
+    {% else %}
+    <p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+    {% endifusergroup %}
+	</br>
+</body>
+</html>
+{% endblock %}

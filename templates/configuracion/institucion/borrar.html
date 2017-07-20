@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+
+<html>
+<head>
+    <title>Eliminar Institución</title>
+</head>
+
+{% load templatag_grupos %}
+
+<script>
+$(document).ready(function() {
+    $('#volver').click(function(){
+        url = '/menu/configuraciones/instituciones/'
+        window.location = url
+    })
+});
+</script>
+<body>
+    </br>
+	</br>
+	<div class="text-left">
+		<label  style="color: #3C85C4">&nbsp;&nbsp;&nbsp; 
+		<a style="color: #3C85C4" href="/menu/configuraciones/instituciones/" >Instituciones</a>
+		> Eliminar Institución</label>
+	</div>
+    
+    <form method="post" class="text-center">
+	{% csrf_token %}
+	<H3 style="color: #3C85C4">Eliminar Institución</H3>
+	<h3 style="color: #3C85C4">¿Está seguro que quiere borrar esta Institución "{{ borrar_institucion }}" ?</h3>
+	{% if cantidad > 0 %}
+	    <h4 style="color: #3C85C4">Disculpe, pero no puede Eliminar esta Institución porque esta <span style="color: red"> vinculada a 1 o más Dependencias</span></h4>
+	{% endif%}
+	<button style="font-weight: bold;font-size: 13px" type="button" id="volver" class="btn btn-warning"/>
+	    <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+	</button>
+	<button style="font-weight: bold;font-size: 13px" type="submit" id="eliminar" class="btn btn-danger "
+	    {% if cantidad > 0 %}
+		disabled="disabled" 
+	    {% endif %}
+	/><span class="glyphicon glyphicon-remove"></span>&nbsp;Eliminar
+	</button>
+	
+    </form>
+	<br>
+</body>
+</html>
+{% endblock %}
+

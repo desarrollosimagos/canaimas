@@ -1,0 +1,181 @@
+.file-input {
+    overflow-x: auto;
+}
+.file-loading {
+    background: url("../img/loading.gif") no-repeat scroll left top rgba(0, 0, 0, 0);
+    border: medium none;
+    color: #FFFFFF;
+    font-size: 999px;
+    height: 25px;
+    right: 0;
+    text-align: right;
+    top: 0;
+    width: 25px;
+}
+.btn-file {
+    overflow: hidden;
+    position: relative;
+}
+.btn-file input[type="file"] {
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+    cursor: inherit;
+    display: block;
+    min-height: 100%;
+    min-width: 100%;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    text-align: right;
+    top: 0;
+}
+.file-caption .glyphicon {
+    display: inline-block;
+    margin-top: 2px;
+    min-width: 18px;
+}
+.file-caption-name {
+    display: inline-block;
+    max-height: 20px;
+    overflow: hidden;
+    padding-right: 10px;
+    word-break: break-all;
+}
+.file-caption-ellipsis {
+    cursor: default;
+    display: none;
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-top: -6px;
+    position: absolute;
+    right: 10px;
+}
+.kv-has-ellipsis .file-caption-ellipsis {
+    display: inline;
+}
+.kv-has-ellipsis {
+    padding-right: 17px;
+}
+.kv-search-container .kv-search-clear {
+    padding: 10px;
+    position: absolute;
+    right: 0;
+}
+.file-error-message {
+    background-color: #F2DEDE;
+    border-radius: 5px;
+    color: #A94442;
+    padding: 5px;
+    text-align: center;
+}
+.file-error-message pre, .file-error-message ul {
+    margin: 5px 0;
+    text-align: left;
+}
+.file-caption-disabled {
+    background-color: #EEEEEE;
+    cursor: not-allowed;
+    opacity: 1;
+}
+.file-input .btn .disabled, .file-input .btn[disabled] {
+    cursor: not-allowed;
+}
+.file-preview {
+    border: 1px solid #DDDDDD;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
+    width: 100%;
+}
+.file-preview-frame {
+    border: 1px solid #DDDDDD;
+    box-shadow: 1px 1px 5px 0 #A2958A;
+    display: table;
+    float: left;
+    height: 160px;
+    margin: 8px;
+    padding: 6px;
+    text-align: center;
+    vertical-align: middle;
+}
+.file-preview-frame:hover {
+    box-shadow: 3px 3px 5px 0 #333333;
+}
+.file-preview-image {
+    height: 160px;
+}
+.file-preview-text {
+    color: #428BCA;
+    font-size: 11px;
+    text-align: center;
+    width: 160px;
+}
+.file-preview-other {
+    padding-top: 48px;
+    text-align: center;
+}
+.file-preview-other i {
+    font-size: 2.4em;
+}
+.file-other-error {
+    padding-top: 30px;
+    text-align: right;
+    width: 100%;
+}
+.file-input-ajax-new .fileinput-remove-button, .file-input-ajax-new .fileinput-upload-button, .file-input-new .close, .file-input-new .file-preview, .file-input-new .fileinput-remove-button, .file-input-new .fileinput-upload-button, .file-input-new .glyphicon-file {
+    display: none;
+}
+.loading {
+    background: url("../img/loading.gif") no-repeat scroll center center content-box rgba(0, 0, 0, 0) !important;
+}
+.wrap-indicator {
+    color: #245269;
+    cursor: pointer;
+    font-weight: 700;
+}
+.file-actions {
+    text-align: left;
+}
+.file-footer-buttons {
+    float: right;
+}
+.file-thumbnail-footer .file-caption-name {
+    color: #777777;
+    font-size: 11px;
+    padding-top: 4px;
+}
+.file-upload-indicator {
+    cursor: default;
+    padding-top: 2px;
+}
+.file-upload-indicator:hover {
+    font-size: 1.2em;
+    font-weight: 700;
+    padding-top: 0;
+}
+.file-drop-zone {
+    border: 1px dashed #AAAAAA;
+    border-radius: 4px;
+    height: 100%;
+    margin: 12px 15px 12px 12px;
+    padding: 5px;
+    text-align: center;
+    vertical-align: middle;
+}
+.file-drop-zone-title {
+    color: #AAAAAA;
+    font-size: 40px;
+    padding: 85px 10px;
+}
+.highlighted {
+    background-color: #F0F0F0;
+    border: 2px dashed #999999 !important;
+}
+.file-uploading {
+    background-image: url("../img/loading-sm.gif");
+    background-position: center bottom 10px;
+    background-repeat: no-repeat;
+    opacity: 0.6;
+}
+.file-icon-large {
+    font-size: 1.2em;
+}

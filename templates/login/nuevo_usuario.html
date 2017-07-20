@@ -1,0 +1,424 @@
+<!--Modificacion: Fecha 22 de Junio 2015-->
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block contenido %}
+
+
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>{% block titulo %} Sistema Administrativo | Gestion de Usuarios{% endblock %}</title>
+
+</head>
+    <script type="text/javascript">
+$(document).ready(function () {
+        //alert("CARGO");
+    
+    $("select").select2();
+    $('#email').numeric(); //Valida solo valores tipo texto
+    $('#id_nombres').alpha({allow: " "}); //Valida solo valores tipo texto
+    $('#id_apellidos').alpha({allow: " "}); //Valida solo valores tipo texto
+    $('#id_nacionalidad').select2();
+
+    // Evento para reflejar desde la lista de usuarios, los datos correspondientes
+    $("table#list_user tbody tr td").on('click', '#modificar', function () {
+        var aPos = Lusuarios.fnGetPosition(this.parentNode.parentNode);
+        var oData = Lusuarios.fnGetData(aPos);
+
+        $("#email").val(oData[1].trim()).attr('readonly', 'true');
+        $("#username_id").val(oData[2].trim()).attr('readonly', 'true');
+		$("#valor").val(oData[7].trim());
+        $("#first_name").val(oData[3].trim()).attr('readonly', 'true');
+        $("#last_name").val(oData[4].trim()).attr('readonly', 'true');
+        $("#registrar").val("Actualizar");
+        $("#titulo").text("Actualizar");
+        $("#grupo").val(oData[5].trim()).attr('readonly', 'true');
+	
+		if (oData[6].trim() == "Activo") {
+			//alert("Es activo");
+			$("#is_active").select2('val', '1');
+		} else {
+			$("#is_active").select2('val', '2');
+		}
+			
+		var id_user = oData[7].trim();
+
+		$.get('/buscar_grupos/', {'id_user': id_user, 'bandera': 'true'}, function (data) {
+			//alert(data);
+			var option = "";
+			$('#grupo').find('option:gt(0)').remove().end().select2('val', '');
+			$.each(data, function(i) {
+			//alert(data[i])
+			//Continuar desde aquí
+			option += "<option value=" + data[i][0] + " selected='selected'>" + data[i][1] + "</option>";
+			});
+			$('#grupo').append(option);
+		});
+		
+		$.get('/buscar_institucion/', {'id_user': id_user}, function (datos) {
+			var option = "";
+		
+			if (datos !='error') {
+				$('#institucion').select2('val',parseInt(datos))
+			}
+			location.reload();
+		},'json');
+    });
+	
+	
+
+    var Lusuarios = $('#list_user').dataTable({
+        "iDisplayLength": 5,
+        "iDisplayStart": 0,
+        "sPaginationType": "full_numbers",
+        "aLengthMenu": [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        "oLanguage": {"sUrl": "/static/js/es.txt"},
+        "aoColumns": [
+            {"sClass": "registro center", "sWidth": "1%"},
+            {"sClass": "registro center", "sWidth": "2%"},
+            {"sClass": "registro center", "sWidth": "10%"},
+            {"sClass": "registro center", "sWidth": "20%"},
+            {"sClass": "registro center", "sWidth": "20%"},
+            {"sClass": "registro center", "sWidth": "20%"},
+            {"sClass": "registro center", "sWidth": "5%"},
+            {"sClass": "registro center", "sWidth": "1%"},
+            {"sClass": "registro center", "sWidth": "1%"},
+			{"sClass": "registro center", "sWidth": "1%"},
+        ]
+    });
+
+    $("#email").change(function (event) {
+        var cedula = $('#email').val();
+        //var hosting = $('#id_hosting').val(); // Captura del hosting (dominio)
+        var hosting = "consultaelectoral.bva.org.ve/cedula="
+        if (hosting) {
+            $.get("http://" + hosting + cedula, function (data) {
+                var option = "";
+                $.each(data, function (i) {
+                    $("#first_name").val(data[i].p_nombre + " " + data[i].s_nombre)
+                    $("#last_name").val(data[i].p_apellido + " " + data[i].s_apellido)
+                });
+                // Proceso para validar con la clase error 404 Not Found
+            }, 'json');
+        }
+    });
+
+    // Validamos los campos del formulario
+    $("#registrar").click(function (e) {
+        e.preventDefault();  // Para evitar que se envíe por defecto
+
+        if ($('#email').val().trim() == '' || $('#email').val().trim() == 0) {
+	    
+	    bootbox.alert("Rellene el campo de cédula", function () {
+	    }).on('hidden.bs.modal', function (event) {
+		$("#email").parent('div').addClass('has-error')
+		$('#email').val('')
+		$("#email").focus();
+	    });
+	    
+        } else if ($('#email').val().length < 6) {
+	    
+	    
+	    bootbox.alert("La cédula está incompleta", function () {
+	    }).on('hidden.bs.modal', function (event) {
+		$("#email").parent('div').addClass('has-error')
+		$('#email').val('')
+		$("#email").focus();
+	    });
+	    
+        } else if ($('#first_name').val().trim() == '') {
+	    
+	    bootbox.alert("Rellene el campo de nombres", function () {
+	    }).on('hidden.bs.modal', function (event) {
+		$("#first_name").parent('div').addClass('has-error')
+		$('#first_name').val('')
+		$("#first_name").focus();
+	    });
+	    
+        } else if ($('#last_name').val().trim() == '') {
+	    
+	    bootbox.alert("Rellene el campo de apellidos", function () {
+	    }).on('hidden.bs.modal', function (event) {
+		$("#last_name").parent('div').addClass('has-error')
+		$('#last_name').val('')
+		$("#last_name").focus();
+	    });
+	    
+        } else if ($('#username_id').val().trim() == '') {
+	    
+	    bootbox.alert("Rellene el campo de usuario", function () {
+	    }).on('hidden.bs.modal', function (event) {
+		$("#username_id").parent('div').addClass('has-error')
+		$('#username_id').val('')
+		$("#username_id").focus();
+	    });
+	    
+        } else if ($('#password').val() == '') {
+	    
+	    bootbox.alert("El campo contraseña no puede estar en blanco", function () {
+	    }).on('hidden.bs.modal', function (event) {
+		$("#password").parent('div').addClass('has-error')
+		$('#password').val('')
+		$("#password").focus();
+	    });
+	    
+        } else if ($('#institucion').val() == '0') {
+	    
+	    bootbox.alert("Debe seleccionar el campo Institución", function () {
+	    }).on('hidden.bs.modal', function (event) {
+		$("#institucion").parent('div').addClass('has-error')
+		$('#institucion').val('')
+		$("#institucion").focus();
+	    });
+	    
+        } else if ($('#grupo').val() == '0') {
+	    
+	    bootbox.alert("Debe seleccionar el campo grupo", function () {
+	    }).on('hidden.bs.modal', function (event) {
+		$("#grupo").parent('div').addClass('has-error')
+		$('#grupo').val('')
+		$("#grupo").focus();
+	    });
+	    
+        }
+		
+		else {
+		
+
+            if ($("#valor").val() == "") {
+                var data_send = $('#form_usuario_register').serialize() + '&' + $.param({accion: 'guardar', 'csrfmiddlewaretoken': "{{ csrf_token }}"});
+            } else {
+                var data_send = $('#form_usuario_register').serialize() + '&' + $.param({accion: 'editar', 'csrfmiddlewaretoken': "{{ csrf_token }}"});
+            }
+
+            $.post("", data_send, function (response) {
+                if (response == 'exito') {
+                    bootbox.alert("Su Registro fue Exitoso ", function () {
+                        window.location = '/nuevo_usuario'
+                    });
+                } else if (response == 'actualizar') {
+
+                    bootbox.confirm("¿Esta seguro que desea modificar el usuario " + $("#first_name").val() + " " + $("#last_name").val() + "?", function (result) {
+
+                        if (result === true) {
+                            bootbox.alert("Su Actualización fue Exitosa ", function () {
+                                window.location = '/nuevo_usuario'
+                            });
+                        }
+                    });
+                } else if (response == 'existe') {
+		    
+		    bootbox.alert("Disculpe ya existe el usuario " + $("#username_id").val() + "", function () {
+		    }).on('hidden.bs.modal', function (event) {
+			$("#username_id").parent('div').addClass('has-error')
+			$('#username_id').val('')
+			$("#username_id").focus();
+		    });
+		    
+                }
+            });
+        }
+
+    });
+	
+	$('.eliminar').click(function(e){
+		e.preventDefault()
+		var url = $(this).attr('href')
+		var padre = $(this).closest('tr');
+		var nRow  = padre[0];
+		bootbox.confirm("Desea Eliminar el Registro?", function(result) {
+			if (result) {
+				$.post(url, {csrfmiddlewaretoken: '{{ csrf_token }}','accion':'eliminar'}, function(response) {
+				   if (response.existe=='si') {
+						bootbox.alert("El Registro no puede ser eliminado ya que posee registros asociados", function() {
+							  
+						});
+					}else{
+						Lusuarios.fnDeleteRow(nRow);
+						bootbox.alert("El Registro fue eliminado exitosamnete", function() {
+							  
+						});
+					}
+				},'json')	
+			}
+		}); 
+	   
+	   
+	});
+	
+});
+
+    </script>
+      {% load templatag_grupos %}
+<body>
+
+        <div >
+			<div class="container" style="width: 100%">
+				<div class="row-fluid text-center">
+					
+				
+					<form method="post" id="form_usuario_register" class="form-horizontal">
+            {% csrf_token %}
+		<br>
+	    <center>
+			
+            <div class="panel panel-danger" style='width:100%; text-transform:uppercase;box-shadow: 0 1px 5px rgba(0,0,0,.85)'>
+                <div class="panel-heading">
+              <label class="panel-title" style="font-size: 14px">Gestión de usuarios</label>
+            </div>
+               
+		<div class="panel-body">
+		    <div class="form-inline">
+			<div class="form-group col-xs-6">
+			    <input type='hidden' id='valor' name='valor'/>
+			    <label>&nbsp;Cédula:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			    <input class="form-control" type='text' style="width:75%" placeholder="Ejemplo: 12345678" id="email" maxlength="8" name="email" autofocus='true'/>
+			</div>
+			<div class="form-group col-xs-6">
+			    <label>&nbsp;&nbsp;Nombres:&nbsp;&nbsp;</label>
+			    <input class="form-control" style="width:75%" type='text' placeholder="Nombres" id="first_name" name="first_name"/>                           
+			</div>
+		    </div>
+		    <br/>
+		    <br/>
+		    <div class="form-inline">
+			<br/>
+			<div class="form-group col-xs-6">
+			    <label>&nbsp;Apellidos:&nbsp;&nbsp;&nbsp;</label>
+                            <input class="form-control" style="width:75%" type='text' placeholder="Apellidos" id="last_name" name="last_name"/>
+			</div>
+			<div class="form-group col-xs-6">
+			    <label>&nbsp;&nbsp;Usuario:&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                            <input class="form-control" style="width:75%" type='text' placeholder="Usuario" id="username_id" name="username"/>
+			</div>
+		    </div>
+		    <br/>
+		    <br/>
+		    <br/>
+		    <div class="form-inline">
+			<div class="form-group col-xs-6">
+			    <label>Contraseña:</label>
+                            <input class="form-control" style="width:75%" type='password' placeholder="Contraseña" id="password" name="password"/>
+			</div>
+			<div class="form-group col-xs-6">
+			    <label>&nbsp;&nbsp;Estátus:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			    <select id='is_active' name='is_active' style='width:75%;'>
+				<option value='1'>Activo</option>
+				<option value='2'>Inactivo</option>
+			    </select>
+			</div>
+		    </div>
+		    <br/>
+		    <br/>
+		    <br/>
+			<div class="form-inline">
+				<div class="form-group col-xs-6">
+					<label>Institución:</label>
+					<select style="width:75%;" class="form-control input-sm" id="institucion" name="institucion" >
+						<option value="0">Seleccione</option>
+						{% for e in institucion %}
+						<option value="{{e.id}}">{{ e.nom_institucion }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				
+			</div>
+			<br/>
+		    <br/>
+		    <br/>
+		    <div class="form-inline">
+			<div class="form-group col-xs-12" id='div_grupo' style='text-align: left'>
+			    <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Grupos:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+			    <select id='grupo' name='grupo' style='width:86%;' class="form-control input-sm" multiple='multiple'/>
+			    <option value='0'>----------------</option>
+			    {% for g in grupo %}
+			    {%if g.name != 'fiscales' %}
+			    <option value='{{g.id}}'>{{g.name}}</option>
+			    {% endif %}
+			    {% endfor %}
+			    </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			</div>
+		    </div>
+		    <br/>
+		    <br/>
+		    <br/>
+		    <div class='div_button'>
+                        <div class="form-group col-xs-12">
+                            <input class="form-control"  type='hidden' placeholder="user" maxlength="50" id="id_user_create" name="user_create" value='{{user.id}}'/>
+			    <button type="submit" id="registrar" value="Registrar" style="font-weight: bold;font-size: 13px" class="btn btn-danger"/>
+				&nbsp;<span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;Guardar
+			    </button>
+			    <button type="reset" id="limpiar" style="font-weight: bold;font-size: 13px; background: -moz-linear-gradient(#f4eb2f, #e5a32d); color: white " class="btn"/>
+				&nbsp;<span class="glyphicon glyphicon-retweet"></span>&nbsp;&nbsp;Limpiar
+			    </button>
+                        </div>
+		    </div>
+		</div>
+                </div>
+		    
+		    <div style="width:100%">
+                      <table style="width:100%" border="0" align="center" cellspacing="1" id="list_user" align="center"
+			    class="table table-bordered table-striped table-hover table-condensed dt-responsive table-responsive">
+		     <thead style="font-size: 13px">
+                            <tr style="background-color: #C71C22">
+                                <th colspan=9  style="text-align: center; color: white;font-size: 14px">Listado de Usuarios</th>
+                            </tr>
+                            <tr class="danger">
+                                <th style="text-align: center">Itém</th>
+                                <th style="text-align: center">Cédula</th>
+                                <th style="text-align: center">Login</th>
+                                <th style="text-align: center">Nombres</th>
+                                <th style="text-align: center">Apellidos</th>
+                                <th style="text-align: center">Grupo</th>
+                                <th style="text-align: center">Estatus</th>
+                                <th hidden='hidden'>ID</th>
+                                <th style="text-align: center">Editar</th>
+								<th style="text-align: center">Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for id,email,username,first_name,last_name,is_active,name in listar_usuarios %}
+				
+							<tr style="font-size: 13px">
+								<td>{{ forloop.counter }}</td>
+								<td>{{ email }}</td>
+								<td>{{ username }}</td>
+								<td>{{ first_name }}</td>
+								<td>{{ last_name }}</td>
+								<td>{{name}}</td>
+								<td>
+								{% if is_active == True %}
+								Activo
+								{% else %}
+								Inactivo
+								{% endif %}
+								</td>
+								<td hidden='hidden'>{{ id }}</td>
+								<td>
+									<img id='modificar' style="width:25px;height: 25px" src="{{ STATIC_URL }}img/edit.png"/></a>
+								</td>
+								<td>	
+								{% if username != 'Atencion' and 'Soporte' %}
+								<a class='eliminar' href='{% url "eliminar_user" id %}'><img style='cursor: pointer;' src='/static/img/delete.png' width='25px;' height='25px;' title='Eliminar datos de {{ first_name }} {{ last_name }}'/></a>
+								{% endif %}
+								</td>
+							</tr>
+							
+                        {% endfor %}
+                        </tbody>
+                    </table>
+		    </div>
+		    </center>
+
+                </div>
+        </form>
+					<!--<div class="mainbody-section text-center">-->
+					<!---->
+					<!--</div>-->
+				</div>
+			</div>
+		</div>
+
+</body>
+</html>
+{% endblock %}

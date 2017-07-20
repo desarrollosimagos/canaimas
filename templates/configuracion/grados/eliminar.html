@@ -1,0 +1,50 @@
+{% extends "base.html" %} <!-- Heredando (Bloque) plantilla index -->
+	{% block title %}Gestión Canaima{% endblock %}
+	
+	{% block contenido %}
+		<html>
+<head>
+    <title>Eliminar Modeloes</title>
+</head>
+
+{% load templatag_grupos %}
+
+<script>
+$(document).ready(function() {
+    $('#volver_mod').click(function(){
+        url = '/menu/configuraciones/grados/listar/'
+        window.location = url
+    })
+});
+</script>
+<body>
+    </br>
+	</br>
+	<div class="text-left">
+		<label style="color:#3C85C4" >&nbsp;&nbsp;&nbsp;
+		<a href="/menu/configuraciones/grados/listar/" style="color:#3C85C4"> Grados de Educación</a>
+		> Eliminar Grado de Educación</label>
+	</div>
+    
+    <form method="post" class="text-center">
+	{% csrf_token %}
+	<H3 style="color: #3C85C4">Eliminar Grado de Educación</H3>
+	<h3 style="color: #3C85C4">¿Está seguro que quiere borrar este Grado de Educación "{{ borrar_grados.grado }}" ?</h3>
+	{% if cantidad > 0 %}
+	    <h4 style="color: #3C85C4">Disculpe, pero no puede Eliminar este Grado de Educación porque esta <span style="color: red"> vinculada a 1 o más XYZ</span></h4>
+	{% endif%}
+	<button style="font-weight: bold;font-size: 13px" type="button" id="volver_mod" class="btn btn-warning"/>
+	    <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+	</button>
+	<button style="font-weight: bold;font-size: 13px" type="submit" id="eliminar:mod" class="btn btn-danger "
+	    {% if cantidad > 0 %}
+		disabled="disabled" 
+	    {% endif %}
+	/><span class="glyphicon glyphicon-remove"></span>&nbsp;Eliminar
+	</button>
+	
+    </form>
+	<br>
+</body>
+</html>
+	{% endblock contenido%}

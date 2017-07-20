@@ -1,0 +1,708 @@
+{% extends "base.html" %} <!-- Heredando (Bloque) plantilla index -->
+
+{% block contenido %}
+
+<html>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    
+    $('#registrar_act').click(function(e){
+		
+        
+        ////guardar cadena con checbox
+        //var checkboxValues = "";
+        //$('input[name="componente[]"]:checked').each(function() {
+        //    checkboxValues += $(this).val() + ",";
+        //    
+        //});
+        ////eliminamos la última coma.
+        //checkboxValues = checkboxValues.substring(0, checkboxValues.length-1);
+        ////alert(checkboxValues);
+        //$("#captura").val(String(checkboxValues));
+        ////si todos los checkbox están seleccionados devuelve el valor contenido
+        
+        //Para validar campos vacios
+		var modelo = $('#id_modelo').find('option').filter(':selected').val()
+		var tipo = $('#id_tipo').find('option').filter(':selected').val()
+		var grado = $('#id_grado').find('option').filter(':selected').val()
+		var estado = $('#id_estado').find('option').filter(':selected').val()
+		var estado2 = $('#id_estado2').find('option').filter(':selected').val()
+        
+		if ($('#id_codigo').val().trim() == '') {
+            bootbox.alert('El codigo no puede estar en blanco', function() {
+			$('.nav-tabs a[href=#tabs_A]').tab('show') ;
+			$('#id_codigo').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+			$('#id_codigo').focus() 
+        });
+		}
+		else if ($('#id_usuario').val().trim() == ''){
+			bootbox.alert('El campo usuario no debe estar vacio', function() {
+			$('.nav-tabs a[href=#tabs_A]').tab('show') ;
+			$('#id_usuario').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+        });
+		}
+		else if (modelo == 0){
+			bootbox.alert('Debe seleccionar el modelo', function(){
+				$('.nav-tabs a[href=#tabs_A]').tab('show') ;
+				$('#id_modelo').addClass('has-error');
+			});
+		}
+		else if ($('#id_serial').val().trim() == ''){
+			bootbox.alert('Debe indicar el serial del equipo', function() {
+			$('.nav-tabs a[href=#tabs_A]').tab('show') ;
+			$('#id_serial').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+        });
+		}
+		else if (!($('#id_portatil').is(':checked') ) && !($('#id_contrato').is(':checked') ) && !($('#id_bateria').is(':checked') ) && !($('#id_caja').is(':checked') ) && !($('#id_cargador').is(':checked') ) ) {
+		bootbox.alert("Debe seleccionar los componentes a entregar", function() {
+		}); 
+		}
+		else if ($('#id_descripcion').val().trim() == ''){
+			bootbox.alert('Debe especificar la descripción del problema', function() {
+			$('.nav-tabs a[href=#tabs_A]').tab('show') ;
+			$('#id_descripcion').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+        });
+		}
+		else if ($('#id_nombre').val().trim() == ''){
+			bootbox.alert('El campo nombre no debe estar vacio', function() {
+			$('.nav-tabs a[href=#tabs_B]').tab('show') ;
+			$('#id_nombre').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+        });
+		}
+		else if ($('#id_apellido').val().trim() == ''){
+			bootbox.alert('El campo apellido no debe estar vacio', function() {
+			$('.nav-tabs a[href=#tabs_B]').tab('show') ;
+			$('#id_apellido').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+        });
+		}
+		else if (tipo == 0){
+			bootbox.alert('Debe seleccionar el tipo de educación', function(){
+				$('.nav-tabs a[href=#tabs_B]').tab('show') ;
+				$('#id_tipo').addClass('has-error');
+			});
+		}
+		else if (grado == 0){
+			bootbox.alert('Debe seleccionar el grado en curso', function(){
+				$('.nav-tabs a[href=#tabs_B]').tab('show') ;
+				$('#id_grado').addClass('has-error');
+			});
+		}
+		else if (estado == 0){
+			bootbox.alert('Debe seleccionar el estado', function(){
+				$('.nav-tabs a[href=#tabs_B]').tab('show') ;
+				$('#id_estado').addClass('has-error');
+			});
+		}
+		else if ($('#id_cedula').val().trim() == ''){
+			bootbox.alert('Debe escribir la cédula del representante', function() {
+			$('.nav-tabs a[href=#tabs_C]').tab('show') ;
+			$('#id_cedula').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+        });
+		}
+		else if ($('#id_nombre2').val().trim() == ''){
+			bootbox.alert('Debe especificar el nombre del representante', function() {
+			$('.nav-tabs a[href=#tabs_C]').tab('show') ;
+			$('#id_nombre2').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+        });
+		}
+		else if ($('#id_apellido2').val().trim() == ''){
+			bootbox.alert('Debe especificar el apellido del representante', function() {
+			$('.nav-tabs a[href=#tabs_C]').tab('show') ;
+			$('#id_apellido2').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+        });
+		}
+		else if ($('#id_telefono1').val().trim() == ''){
+			bootbox.alert('Debe especificar un número de contacto', function() {
+			$('.nav-tabs a[href=#tabs_C]').tab('show') ;
+			$('#id_telefono1').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+        });
+		}
+		else if (estado2 == 0){
+			bootbox.alert('Debe seleccionar el estado', function(){
+				$('.nav-tabs a[href=#tabs_C]').tab('show') ;
+				$('#id_estado2').addClass('has-error');
+			});
+		}
+		
+		else{
+			$('#id_codigo,#id_fecha_s,#captura').prop('disabled',false);
+			$.post('',$('#form_solicitud').serialize(),function(response){
+				if (response == 'existe_cod') {
+					bootbox.alert("Este código de solicitud ya esta registrado", function() {
+						$('.nav-tabs a[href=#tabs_A]').tab('show') ;
+						$('#id_codigo').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+					});
+				}else{
+					url = '/menu/registros/solicitud/listar/'
+					window.location = url
+				}
+			});
+		}
+
+    })
+	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Al cambiar de opción en el combo de estado
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	$('#id_estado2').change(function() {
+		var id_est = $('#id_estado2').val();
+		//alert(id_est)
+		$('#id_municipio2').find('option:gt(0)').remove().end();
+		if (id_est > 0) {
+			$.get('/menu/topologia/parroquias/busqueda_ajaxRe/', {'id':id_est}, function(data) {
+			var option = "";
+			$.each(data, function(i) {
+				option += "<option value=" + data[i].fields.cod_municipio + ">" + data[i].fields.municipio + "</option>";
+			});
+			$('#id_municipio2').append(option);
+			}, 'json');
+		}
+		
+		
+	});
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Al cambiar de option en el combo municipio
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	$('#id_municipio2').change(function() {
+		var id_est  = $('#id_estado2').val();
+		var id_mun  = $("#id_municipio2").val();
+		var id_parr = $('#id_parroquia2').val();
+		
+		//alert(id_est)
+		
+		$('#id_parroquia2').find('option:gt(0)').remove().end();
+		if (id_est > 0 && id_mun > 0) {
+			
+			$.get('/menu/topologia/parroquias/busqueda_ajaxRe2/', {'id_est':id_est,'id_mun':id_mun}, function(data) {
+			var option = "";
+			$.each(data, function(i) {
+				option += "<option value=" + data[i].fields.cod_parroquia + ">" + data[i].fields.parroquia + "</option>";
+			});
+			$('#id_parroquia2').append(option);
+		
+			}, 'json');
+		}
+		
+	});
+	
+	$('#id_fecha_e').datepicker({
+		format: "dd/mm/yyyy",
+		language: "es",
+		autoclose: true,
+	})
+	
+	///// Para validar campos numericos, alfanumericos y seleccion
+    $("#id_modelo,#id_tipo,#id_grado,#id_cod_estado,#id_cod_municipio,#id_cod_parroquia,#id_estado2,#id_municipio2,#id_parroquia2,#id_institucion").select2();
+    $('#id_codigo,#id_serial,#id_email').alphanumeric({allow:"@,-.# "}); //Valida solo valores numericos y texto
+    $('#id_edad,#id_cedula,#id_telefono1,#id_telefono2').numeric(); //Valida solo permite valores numericos
+	
+    $('#volver').click(function(){
+        url = '/menu/registros/solicitud/listar/'
+        window.location = url
+    })
+    $('#limpiar').click(function(){
+        //$('#id_partido').select2('val', '0');
+    })
+});
+
+</script>
+<style>
+    label{
+        font-weight: bold
+    }
+</style>
+{% load templatag_grupos %}
+{% ifusergroup Atencion %}
+<body>
+	
+    <form method="post" id="form_solicitud" enctype="multipart/form-data">
+	{% csrf_token %}
+	<br/>
+    <br/>
+	<div class="text-left">
+        
+    </div>
+	<br/>
+	<div style="width: 100%;text-transform:uppercase;box-shadow: 0 1px 5px rgba(0,0,0,.85);text-align: left" class="panel panel-danger">
+	    <div class="panel-heading text-center">
+			<label style="float: left" class="panel-title " ><a style="color: white" href="/menu/registros/solicitud/listar/" >Solicitud</a>
+			> Visualizar</label>
+			<br>
+		</div>
+		<div class="form-inline">
+			<div class="panel-body">
+				<!-- Apertura de Tabs (Secciones) -->
+				<ul class="nav nav-tabs">
+					<li class="active" data-toggle="popover" data-trigger="focus" title="Datos del equipo" data-content="En este panel se ingresan los datos del equipo" data-placement="top">
+						<a data-toggle="tab" href="#tabs_A">Datos del equipo</a>
+					</li>
+					<li id="#tabs_2" data-toggle="popover" data-trigger="focus" title="Datos del estudiante" data-content='En este panel se ingresan los datos del estudiante' data-placement="top">
+						<a data-toggle="tab" href="#tabs_B">Datos del estudiante</a>
+					</li>
+					<li data-toggle="popover" data-trigger="focus" title="Datos del representante" data-content='En este panel se ingresan los datos del representante' data-placement="top">
+						<a data-toggle="tab" href="#tabs_C">Datos del representante</a>
+					</li>
+					<li data-toggle="popover" data-trigger="focus" title="Datos de la reparación" data-content='En este panel se ingresan los datos de la reparación' data-placement="top">
+						<a data-toggle="tab" href="#tabs_D">Datos de la reparación</a>
+					</li>
+
+				</ul>
+				<!-- Cierre de Tabs (Secciones) -->
+				<!-- Apertura de tabs (Contenidos) -->
+				<div class="tab-content">
+					<div id="tabs_A" class="tab-pane fade in active">
+						 <div class="panel-body">
+							<!-- Apertura de datos principales de la empresa  -->
+							
+							<div class="form-group col-xs-1"><label>Código</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_codigo" maxlength="30"  style="width: 100%;" name="codigo" type="text" value='{{registro_act.codigo}}' disabled="disabled"/>
+                            </div>
+							
+							<div class="form-group col-xs-1"><label>Usuario</label></div>
+                            <div class="form-group col-xs-2">
+                                <span style="color: red; font-weight: bold">{{registro_act.user_create|upper}}</span>
+                            </div>
+							<div class="form-group col-xs-1"><label>Estatus</label></div>
+							<div class="form-group col-xs-2">
+                                <span style='color: red; font-weight: bold'>
+									{% if registro_act.status == '1' %}
+											<span style='color: red; font-weight: bold'>Atendiendo</span>
+									{% endif %}
+									{% if registro_act.status == '2' %}
+											<span style='color: red; font-weight: bold'>Remitir</span>
+									{% endif %}
+									{% if registro_act.status == '3' %}
+											<span style='color: red; font-weight: bold'>Reparada</span>
+									{% endif %}
+									{% if registro_act.status == '4' %}
+											<span style='color: red; font-weight: bold'>Entregada</span>
+									{% endif %}
+									{% if registro_act.status == '5' %}
+											<span style='color: red; font-weight: bold'>Devuelta</span>
+									{% endif %}
+								</span>
+                            </div>
+
+							<br/><br/><br/>
+							<div class="form-group col-xs-1"><label>Solicitud</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_fecha_s" maxlength="30"  style="width: 100%;" name="fecha_s" type="text" value="{{registro_act.fecha_s |date:"SHORT_DATE_FORMAT"}}" disabled="disabled"/>
+                            </div>
+							
+							<div class="form-group col-xs-1"><label>Entrega</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_fecha_e" maxlength="30"  style="width: 100%;" name="fecha_e" type="text" value="{{registro_act.fecha_e |date:"SHORT_DATE_FORMAT"}}" disabled="disabled"/>
+                            </div>
+							
+							<br/><br/><br/>
+							<div class="form-group col-xs-1"><label>Receptor</label></div>
+							<div class="form-group col-xs-5">
+								<select style="width:100%; " class="form-control input-sm" id="id_institucion" name="institucion" disabled="disabled">
+									<option value="">Seleccione</option>
+									{% for ins in lista_institucion %}
+									
+									{% if ins.id == registro_act.institucion.id %}
+									<option value="{{ins.id}}" selected='selected'>{{ins.nom_institucion}}</option>
+									{% endif %}
+									{% if not ins.id == registro_act.institucion.id %}
+									<option value="{{ins.id}}">{{ins.nom_institucion}}</option>
+									{% endif %}
+									
+									{% endfor %}
+								</select>
+							</div>
+							
+							<br/><br/><br/><br/>
+							<fieldset><legend style="text-align: left">Descripción del equipo</legend></fieldset>
+							<div class="form-inline">
+                                <div class="form-group col-xs-1"><label>Modelo</label></div>
+								<div class="form-group col-xs-5">
+									<select style="width:100%; " class="form-control input-sm" id="id_modelo" name="modelo" disabled="disabled">
+										<option value="">Seleccione</option>
+										{% for c in lista_modelo %}
+                                        
+                                        {% if c.id == registro_act.modelo.id %}
+										<option value="{{c.id}}" selected='selected'>{{c.nombre}}</option>
+										{% endif %}
+										{% if not c.id == registro_act.modelo.id %}
+										<option value="{{c.id}}">{{c.nombre}}</option>
+										{% endif %}
+                                        
+                                        {% endfor %}
+									</select>
+								</div>
+							</div>
+                            
+                            <div class="form-group col-xs-1"><label>Serial</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_serial" maxlength="30"  style="width: 100%;" placeholder="Serial del equipo" name="serial" type="text" value='{{registro_act.serial}}' disabled="disabled"/>
+                            </div>
+						</div>
+                        <br/><br/>
+							
+							<fieldset><legend style="text-align: left">Componentes entregados</legend></fieldset>
+							<div class="form-inline" >
+                                <div class="form-group col-xs-4">
+									{% if registro_act.portatil == True %}
+                                    <input type="checkbox" name="portatil" id="id_portatil" checked='checked' disabled="disabled"><label>&nbsp;&nbsp;Pórtatil</label>    
+									{% else %}
+									<input type="checkbox" name="portatil" id="id_portatil" disabled="disabled"><label>&nbsp;&nbsp;Pórtatil</label>
+									{% endif %}
+								</div>
+                                
+                                <div class="form-group col-xs-4">
+									{% if registro_act.contrato == True %}
+                                    <input type="checkbox" name="contrato" id="id_contrato" checked='checked' disabled="disabled"><label>&nbsp;&nbsp;Contrato</label>    
+									{% else %}
+									<input type="checkbox" name="contrato" id="id_contrato" disabled="disabled"><label>&nbsp;&nbsp;Contrato</label>
+									{% endif %}  
+                                </div>
+                                
+                                <div class="form-group col-xs-4">
+									{% if registro_act.bateria == True %}
+                                    <input type="checkbox" name="bateria" id="id_bateria" checked='checked' disabled="disabled"><label>&nbsp;&nbsp;Batería</label>    
+									{% else %}
+									<input type="checkbox" name="bateria" id="id_bateria" disabled="disabled"><label>&nbsp;&nbsp;Batería</label>
+									{% endif %}
+                                </div>
+                                <br/><br/>
+                                
+                                <div class="form-group col-xs-4">
+									{% if registro_act.caja == True %}
+                                    <input type="checkbox" name="caja" id="id_caja" checked='checked' disabled="disabled"><label>&nbsp;&nbsp;Caja</label>    
+									{% else %}
+									<input type="checkbox" name="caja" id="id_caja" disabled="disabled"><label>&nbsp;&nbsp;Caja</label>
+									{% endif %}
+                                </div>
+                                
+                                <div class="form-group col-xs-4">
+									{% if registro_act.cargador == True %}
+                                    <input type="checkbox" name="cargador" id="id_cargador" checked='checked' disabled="disabled"><label>&nbsp;&nbsp;Cargador</label>    
+									{% else %}
+									<input type="checkbox" name="cargador" id="id_cargador" disabled="disabled"><label>&nbsp;&nbsp;Cargador</label>
+									{% endif %}   
+                                </div>
+        
+                                <!--<input type="text" name="componente" id="captura" value='{{registro_act.componente}}' disabled="disabled">-->
+                                <br/><br/>
+							</div>
+                            
+                            <div class="form-group col-xs-1"><label>Descripción</label></div>
+                            <br/><br/>
+                            <div class="form-group col-xs-12">
+                                <textarea cols="70" id="id_descripcion" name="descripcion" rows="05" style="width: 100%;" placeholder="Descripción del problema" disabled="disabled">{{registro_act.descripcion}}</textarea>
+                            </div>
+					</div>
+                    
+                    <!--2do tab-->
+					<div id="tabs_B" class="tab-pane fade">
+						<div class="panel-body">
+							<fieldset><legend style="text-align: left">Datos personales</legend></fieldset>
+							
+                            <div class="form-group col-xs-1"><label>Nombre</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_nombre" maxlength="30"  style="width: 100%;" name="nombre" type="text" value='{{registro_act.nombre}}' disabled="disabled"/>
+                            </div>
+                            
+                            <div class="form-group col-xs-1"><label>Apellido</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_apellido" maxlength="30"  style="width: 100%;" name="apellido" type="text" value='{{registro_act.apellido}}' disabled="disabled"/>
+                            </div>
+                            <br/><br/><br/>
+                            
+                            <div class="form-group col-xs-1"><label>Sexo</label></div>
+                            <div class="form-group col-xs-5">
+                                <select style="width: 100%;font-size: 13px"  id="id_sexo" name="sexo" disabled="disabled">
+								<option value='0'>----------------</option>
+								{% if registro_act.sexo == 0 %}
+									<option value=0 selected='selected'>----------------</option>
+								{% endif %}
+								{% if not registro_act.sexo == 0 %}
+									<option value=0>----------------</option>
+								{% endif %}
+								{% if registro_act.sexo == '1' %}
+									<option value='1' selected='selected'>FEMENINO</option>
+								{% endif %}
+								{% if not registro_act.sexo == '1' %}
+									<option value='1'>Femenino</option>
+								{% endif %}
+								{% if registro_act.sexo == '2' %}
+									<option value='2' selected='selected'>MASCULINO</option>
+								{% endif %}
+								{% if not registro_act.sexo == '2' %}
+									<option value='2'>Masculino</option>
+								{% endif %}
+								</select>
+							</div>
+                            
+                            <div class="form-group col-xs-1"><label>Edad</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_edad" maxlength="30"  style="width: 100%;" name="edad" type="text" value='{{registro_act.edad}}' disabled="disabled"/>
+                            </div>
+                            <br/><br/><br/>
+                            
+                            <div class="form-inline">
+								<div class="form-group col-xs-1">
+									<label>Tipo </label>
+								</div>
+								<div class="form-group col-xs-5">
+									<select style="width:100%;" id="id_tipo" name="tipo" disabled="disabled">
+										<option value="">Seleccione</option>
+										{% for tt in listado_tipo %}
+										
+										{% if tt.id == registro_act.tipo_id %}
+										<option value="{{tt.id}}" selected='selected'>{{ tt.tipo }}</option>
+										{% endif %}
+										{% if not tt.id == registro_act.tipo_id %}
+										<option value="{{tt.id}}" >{{ tt.tipo }}</option>
+										{% endif %}
+										
+                                        {% endfor %}
+									</select>
+								</div>
+							</div>
+                            
+                            <div class="form-inline">
+								<div class="form-group col-xs-1">
+									<label>Grado </label>
+								</div>
+								<div class="form-group col-xs-5">
+									<select style="width:100%;" id="id_grado" name="grado" disabled="disabled">
+										<option value="">Seleccione</option>
+										{% for g in listado_grado %}
+										
+										{% if g.id == registro_act.grado.id %}
+										<option value="{{g.id}}" selected='selected'>{{g.grado}}</option>
+										{% endif %}
+										{% if not g.id == registro_act.grado.id %}
+										<option value="{{g.id}}">{{g.grado}}</option>
+										{% endif %}
+										
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+                            
+							<br/><br/><br/>
+							<fieldset><legend style="text-align: left">Dirección de la institución</legend></fieldset>
+							
+							 <div class="form-group col-xs-1"><label>Escuela</label></div>
+								<div class="form-group col-xs-5">
+									<input id="id_escuela" maxlength="30"  style="width: 100%;" name="escuela" type="text" value='{{registro_act.escuela}}' disabled="disabled"/>
+								</div>
+								
+								<div class="form-inline">
+									<div class="form-group col-xs-1">
+										<label>Estado </label>
+									</div>
+									<div class="form-group col-xs-5">
+										<select style="width:100%;" id="id_cod_estado" name="estado" disabled="disabled">
+											<option value="">Seleccione</option>
+											{% for e in listado_estado %}
+											
+											{% if e.id == registro_act.estado.id %}
+											<option value="{{e.cod_estado}}" selected='selected'>{{e.estado}}</option>
+											{% endif %}
+											{% if not e.id == registro_act.estado.id %}
+											<option value="{{e.cod_estado}}">{{e.estado}}</option>
+											{% endif %}
+											
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								
+								<br/><br/><br/>
+								<div class="form-inline">
+									<div class="form-group col-xs-1">
+										<label>Municipio </label>
+									</div>
+									<div class="form-group col-xs-5">
+										<select style="width:100%;" id="id_cod_municipio" name="municipio" disabled="disabled">
+											<option value="0">Seleccione</option>
+											{% for mu in list_mun %}
+												{% if mu.pk == registro_act.municipio %}
+												<option value='{{mu.pk}}' selected='selected'>{{mu.municipio}}</option>
+												{% endif %}
+												{% if not mu.pk == registro_act.estado_id %}
+												<option value='{{mu.pk}}'>{{mu.municipio}}</option>
+												{% endif %}
+											{% endfor %}
+										</select>
+									</div>
+									
+									<div class="form-group col-xs-1">
+										<label>Parroquia </label>
+									</div>
+									<div class="form-group col-xs-5">
+										<select style="width:100%;" id="id_cod_parroquia" name="parroquia" disabled="disabled">
+											<option value="">Seleccione</option>					
+											{% for pa in list_par %}
+												{% if pa.pk == registro_act.parroquia %}
+												<option value='{{pa.pk}}' selected='selected'>{{pa.parroquia}}</option>
+												{% endif %}
+												{% if not pa.pk == registro_act.parroquia %}
+												<option value='{{pa.pk}}'>{{pa.parroquia}}</option>
+												{% endif %}
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<br/><br/><br/>
+								
+								<div class="form-group col-xs-1"><label>Dirección</label></div>
+								<br/>
+								<br/>
+								<div class="form-group col-xs-12">
+									<textarea cols="70" id="id_direcc_es" name="direcc_es" rows="05" style="width: 100%;" placeholder="Dirección local de la institucion" disabled="disabled">{{registro_act.direcc_es}}</textarea>
+								</div>
+								
+						</div>
+					</div>
+                    
+                    <!--3er tab-->
+					<div id="tabs_C" class="tab-pane fade">
+						<div class="panel-body">
+							<fieldset><legend style="text-align: left">Datos personales</legend></fieldset>
+							<div class="form-group col-xs-1"><label>Cedula</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_cedula" maxlength="30"  style="width: 100%;" name="cedula" type="text" value='{{registro_act.cedula}}' disabled="disabled"/>
+                            </div>
+                            
+                            <div class="form-group col-xs-1"><label>Nombre</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_nombre2" maxlength="30"  style="width: 100%;" name="nombre2" type="text" value='{{registro_act.nombre2}}' disabled="disabled"/>
+                            </div>
+                            <br/><br/><br/>
+                            
+                            <div class="form-group col-xs-1"><label>Apellido</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_apellido2" maxlength="30"  style="width: 100%;" name="apellido2" type="text" value='{{registro_act.apellido2}}' disabled="disabled"/>
+                            </div>
+                            
+                            <div class="form-group col-xs-1"><label>Teléfono1</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_telefono1" maxlength="30"  style="width: 100%;" name="telefono1" type="text" value='{{registro_act.telefono1}}' disabled="disabled"/>
+                            </div>
+                            <br/><br/><br/>
+							
+							<div class="form-group col-xs-1"><label>Teléfono2</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_telefono2" maxlength="30"  style="width: 100%;" name="telefono2" placeholder="Teléfono alternativo" type="text" value='{{registro_act.telefono2}}' disabled="disabled"/>
+                            </div>
+                            
+                            <div class="form-group col-xs-1"><label>Email</label></div>
+                            <div class="form-group col-xs-5">
+                                <input id="id_email" maxlength="30"  style="width: 100%;" name="email" type="text" value='{{registro_act.email}}' disabled="disabled"/>
+                            </div>
+							
+							<br/><br/><br/>
+							<fieldset><legend style="text-align: left">Dirección de domicilio</legend></fieldset>							
+								<div class="form-inline">
+									<div class="form-group col-xs-1">
+										<label>Estado </label>
+									</div>
+									<div class="form-group col-xs-5">
+										<select style="width:100%;" id="id_estado2" name="estado2" disabled="disabled">
+											<option value="">Seleccione</option>
+											{% for e in lista_estado %}
+											
+											{% if e.id == registro_act.estado.id %}
+											<option value="{{e.cod_estado}}" selected='selected'>{{e.estado}}</option>
+											{% endif %}
+											{% if not e.id == registro_act.estado.id %}
+											<option value="{{e.cod_estado}}">{{e.estado}}</option>
+											{% endif %}
+											
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								
+								<br/><br/><br/>
+								<div class="form-inline">
+									<div class="form-group col-xs-1">
+										<label>Municipio </label>
+									</div>
+									<div class="form-group col-xs-5">
+										<select style="width:100%;" id="id_municipio2" name="municipio2" disabled="disabled">
+											<option value="">Seleccione</option>
+											{% for mu in list_mun2 %}
+												{% if mu.pk == registro_act.municipio %}
+												<option value='{{mu.pk}}' selected='selected'>{{mu.municipio}}</option>
+												{% endif %}
+												{% if not mu.pk == registro_act.estado_id %}
+												<option value='{{mu.pk}}'>{{mu.municipio}}</option>
+												{% endif %}
+											{% endfor %}
+										</select>
+									</div>
+									
+									<div class="form-group col-xs-1">
+										<label>Parroquia </label>
+									</div>
+									<div class="form-group col-xs-5">
+										<select style="width:100%;" id="id_parroquia2" name="parroquia2" disabled="disabled">
+											<option value="">Seleccione</option>
+											{% for pa in list_par2 %}
+												{% if pa.pk == registro_act.parroquia %}
+												<option value='{{pa.pk}}' selected='selected'>{{pa.parroquia}}</option>
+												{% endif %}
+												{% if not pa.pk == registro_act.parroquia %}
+												<option value='{{pa.pk}}'>{{pa.parroquia}}</option>
+												{% endif %}
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<br/><br/><br/>
+								
+								<div class="form-group col-xs-1"><label>Dirección</label></div>
+								<br/><br/>
+								<div class="form-group col-xs-12">
+									<textarea cols="70" id="id_direcc_re" name="direcc_re" rows="05" style="width: 100%;" placeholder="Dirección local de domicilio" disabled="disabled">{{registro_act.direcc_re}}</textarea>
+								</div>
+							
+						</div>
+					</div>
+					<!--4to tab-->
+					<div id="tabs_D" class="tab-pane fade">
+						<div class="panel-body">
+							<fieldset><legend style="text-align: left">Descripción del soporte o diagnóstico realizado</legend></fieldset>
+							<div class="form-group col-xs-12">
+								<textarea cols="70" id="id_reparacion" name="reparacion" rows="05" style="width: 100%;" disabled="disabled">{{registro_act.reparacion}}</textarea>
+                            </div>
+						</div>
+					</div>
+				</div>
+				<!-- Cierre de tabs (Contenidos) -->   
+			</div>
+		</div>
+
+	    <input id='user_create' type="hidden" name='user_create' value='{{ user.id }}'>
+<input id='status' type="hidden" name='status' value='{{ status.id }}'>
+	    <div class="row" style="text-align: center">
+			<button type="button" id="volver" style="font-weight: bold;font-size: 13px" class="btn btn-warning " >
+				&nbsp;<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+			</button>
+	    </div>
+		<br/>
+	</div>
+	<br/>
+
+    </form>
+</body>
+</html>
+
+{% else %}
+<div class="text-center">
+	<img src="{{ STATIC_URL }}img/disculpe.jpg" style="width: 70%"/>
+</div>
+
+{% endifusergroup %}
+
+{% endblock %}

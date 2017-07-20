@@ -1,0 +1,42 @@
+{% extends "base.html" %} <!-- Heredando (Bloque) plantilla index -->
+
+{% block contenido %}
+<script type="text/javascript">
+$(document).ready(function(){
+	 $('#volver').click(function(){
+        url = '/menu/registros/solicitud/listar/'
+        window.location = url
+    })
+})
+</script>
+{% load templatag_grupos %}
+{% ifusergroup Administrador %}
+	<form method="post" id="formtipoeducacion" class="form-horizontal">
+		{% csrf_token %}
+		<table>
+			<br/>
+			<div class="panel panel-default" style='width:70%'>
+				<div class="panel-heading" style="width:100%;color:#1A1A1A;font-size: 20px;">
+				</div>
+				<div class="panel-body">
+					<div class="form-inline">
+						<div class="form-group col-xs-6">
+							<label id="nombre">Eliminar:{{listado.cedula}}</label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</table>
+		<div class="row" style="text-align: left">
+		   <button type="button" id="volver" style="font-weight: bold;font-size: 13px" class="btn btn-warning " >
+			   &nbsp;<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+		   </button>
+		   <button type="submit" id="eliminar" style="font-weight: bold;font-size: 13px" class="btn btn-info"/>
+			   &nbsp;<span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;Eliminar
+		   </button>
+	   </div>
+	</form>
+{% else %}
+<p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+{% endifusergroup %}
+{% endblock contenido%}

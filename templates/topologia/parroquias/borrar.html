@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block contenido %}
+<html>
+<head>
+    <title>Eliminar Parroquia</title>
+</head>
+{% load templatag_grupos %}
+{% ifusergroup Topologia %}
+<script>
+$(document).ready(function() {
+    $('#volver,#eliminar').click(function(){
+        url = '/menu/topologia/parroquias'
+        window.location = url
+    })
+});
+
+</script>
+<body>
+	<form method="post" class="text-center">{% csrf_token %}
+    <H3 style="color: red">Eliminar Parroquia</H3>
+   
+	<h3 style="color: red">¿Está seguro que quiere borrar esta Parroquia "{{ borrar_parroquia }}" ?</h3>
+	{% if cantidad_s > 0 %}
+	    <h4>Disculpe, pero no puede Eliminar esta Parroquia porque ya esta <span style="color: red"> vinculado a 1 o más Sectores</span></h4>
+	{% endif%}
+	<button style="font-weight: bold;font-size: 13px" type="button" id="volver" class="btn btn-warning"/>
+	    <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+	</button>
+	<button style="font-weight: bold" type="submit" id="eliminar" class="btn btn-danger "
+	    {% if cantidad_c > 0  %}
+		disabled="disabled"
+	    {% elif cantidad_s > 0  %}
+		disabled="disabled" 
+	    {% endif %}
+	    /> <span class="glyphicon glyphicon-remove"></span>&nbsp;Eliminar
+	</button>
+	
+	
+    </form>
+</body>
+{% else %}
+<p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+{% endifusergroup %}
+</br>
+</html>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+<script>
+	$(document).ready(function(){
+		var TUbch = $('#tab_solicitudes').dataTable({
+			"iDisplayLength": 25,
+			"iDisplayStart": 0,
+			"sPaginationType": "full_numbers",
+			"aLengthMenu": [25, 50, 75, 100],
+			"oLanguage": {"sUrl": "/static/js/es.txt"},
+			"aoColumns": [
+				{"sClass": "registro center", "sWidth": "1%"},
+				{"sClass": "registro center", "sWidth": "1%"},
+				{"sClass": "registro center", "sWidth": "1%"},
+				{"sClass": "registro center", "sWidth": "1%"},
+				{"sClass": "registro center", "sWidth": "1%"},
+				{"sClass": "registro center", "sWidth": "15%"},
+				{"sClass": "registro center", "sWidth": "1%"},
+				{"sClass": "registro center", "sWidth": "1%"},
+				{"sClass": "registro center", "sWidth": "1%"},
+				{"sWidth": "1%", "bSortable": false, "sClass": "center sorting_false", "bSearchable": false},
+				{"sWidth": "1%", "bSortable": false, "sClass": "center sorting_false", "bSearchable": false},
+				{"sWidth": "1%", "bSortable": false, "sClass": "center sorting_false", "bSearchable": false},
+			]
+		});
+		$('#enviar').click(function(){
+			url = '/menu/registros/solicitud/registro/'
+			window.location = url
+		})   
+	
+		
+		$('.devuelta').click(function(e){
+			
+			var id = $(this).attr('id')
+			var padre      = $(this).closest('tr');
+			var nRow       = padre[0];
+			
+			e.preventDefault()
+			bootbox.confirm({
+					title: 'Actualizar Estatus',
+					message: '¿Disculpe, Está Seguro de actualizar el estatus?',
+					buttons: {
+						'cancel': {
+							label: 'NO',
+							className: 'btn-danger'
+						},
+						'confirm': {
+							label: 'SI',
+							className: 'btn-info'
+						}
+					},
+					callback: function(result) {
+						if (result === true) {
+							$.post('/menu/registros/solicitud/remitida/',{'csrfmiddlewaretoken': "{{ csrf_token }}",'id': id},function(response){
+								if (response == 'exito') {
+										bootbox.alert("Estatus actualizado con exito", function() {
+												location.reload();
+										});
+								}
+							})
+						}
+					}
+			});
+							
+		});
+		
+		$('.entregada').click(function(e){
+			
+			var id = $(this).attr('id')
+			var padre      = $(this).closest('tr');
+			var nRow       = padre[0];
+			
+			e.preventDefault()
+			bootbox.confirm({
+					title: 'Actualizar Estatus',
+					message: '¿Disculpe, Está Seguro de actualizar el estatus?',
+					buttons: {
+						'cancel': {
+							label: 'NO',
+							className: 'btn-danger'
+						},
+						'confirm': {
+							label: 'SI',
+							className: 'btn-info'
+						}
+					},
+					callback: function(result) {
+						if (result === true) {
+							$.post('/menu/registros/solicitud/entregada/',{'csrfmiddlewaretoken': "{{ csrf_token }}",'id': id},function(response){
+								if (response == 'exito') {
+										bootbox.alert("Estatus actualizado con exito", function() {
+												location.reload();
+										});
+								}
+							})
+						}
+					}
+			});
+							
+		});
+		
+		$('.eliminar').click(function(e){
+			e.preventDefault()
+			var url = $(this).attr('href')
+			var padre = $(this).closest('tr');
+			var nRow  = padre[0];
+			bootbox.confirm("Desea Eliminar el Registro?", function(result) {
+				if (result) {
+					$.post(url, {csrfmiddlewaretoken: '{{ csrf_token }}','accion':'eliminar'}, function(response) {
+						if (response.existe=='si') {
+							bootbox.alert("Esta acción no puede ser procesada ya que posee registros asociados", function() {
+								  
+							});
+						}else{
+							TUbch.fnDeleteRow(nRow);
+							bootbox.alert("El Registro fue eliminado exitosamnete", function() {
+								  
+							});
+						}
+					},'json')	
+				}
+			});  
+		});
+		$('#enviar').click(function(){
+			url = '/menu/registros/solicitud/registro/'
+			window.location = url
+		})
+		
+	});
+
+</script>
+<script>
+   $(document).ready(function(){
+	   $('[data-toggle="tooltip"]').tooltip(); 
+   });
+</script>
+
+{% load templatag_grupos %}
+{% ifusergroup Atencion %}
+<div class="row-fluid" >
+	<div class="container mainbody-section text-center"  style="width:100%;">
+		<button role="button" class="btn btn-danger" style="font-weight: bold;font-size: 13px" id="enviar" >
+			&nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;Registrar Solicitud
+		</button>
+		<table style="width:100%;" border="0" align="center" cellspacing="1" id="tab_solicitudes"
+		class="panel panel-warning  table table-bordered table-striped table-hover table-condensed dt-responsive table-responsive" >
+			<thead style="font-size: 16px">
+				<tr style="background-color: #C71C22">
+					<th style='text-align: center; color: white' colspan="12">Listado de Solicitudes</th>
+				</tr>
+				<tr class="danger">
+					<th style='text-align: center'>#</th>
+					<th style='text-align: center'>Sede</th>
+					<th style='text-align: center'>Solicitud</th>
+					<th style='text-align: center'>Cédula</th>
+					<th style='text-align: center'>Serial</th>
+					<th style='text-align: center'>Nombre Representante</th>
+					<th style='text-align: center'>Recepción</th>
+					<th style='text-align: center'>Entrega</th>
+					<th style='text-align: center'>Estatus</th>
+					<th style='text-align: center'>Acción</th>
+					<th style='text-align: center'>Ver</th>
+					<th style='text-align: center'>Borrar</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for reg in listado %}
+				<tr style="font-size: 14px;" >
+					<td>{{ forloop.counter }}</td>
+					<td><p data-toggle="tooltip" data-placement="top" title="{{reg.institucion_id__nom_institucion}}">{{reg.institucion_id__siglas}}</p></td>
+					<td>{{reg.codigo}}</td>
+					<td>{{reg.cedula}}</td>
+					<td>{{reg.serial}}</td>
+					<td>{{reg.nombre2}} {{reg.apellido2}}</td>
+					<td>{{reg.fecha_s}}</td>
+					<td>{{reg.fecha_e}}</td>
+					<td>{%if reg.status == '1' %}
+						  ATENDIENDO
+						{% elif reg.status == '2'%}
+						  REMITIDA
+						{% elif reg.status == '3'%}
+						  REPARADA
+						{% elif reg.status == '4'%}
+						  ENTREGADA
+						{% else %}
+						  DEVUELTA
+						{% endif %}
+					</td>
+					<td>
+					  <a href=''>
+						  {%if reg.status == '2' %}
+							  <img style="width:30px;height: 30px" id="{{reg.id}}" class="devuelta" src="{{ STATIC_URL }}img/up.png"/>
+						  {% elif reg.status == '3'%}
+							  <img style="width:30px;height: 30px" id="{{reg.id}}" class="entregada" src="{{ STATIC_URL }}img/up3.png"/>
+						  {% else %}
+							  <img style="width:30px;height: 30px" src="{{ STATIC_URL }}img/up2.png"/>
+						  {% endif %}
+					  </a>
+					</td>
+				  
+					<td>
+					  <a href='{% url "actualizar" reg.id %}'>
+						<img style="width:30px;height: 30px" src="{{ STATIC_URL }}img/ver.png"/>
+					  </a>
+					</td>
+				  
+					<td>
+					  <a class="eliminar" href='{% url "eliminar" reg.id %}'>
+					  <img style="width:30px;height: 30px" src="{{ STATIC_URL }}img/borrar.png"/>
+					</a>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% else %}
+<p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+{% endifusergroup %}
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %} <!-- Heredando (Bloque) plantilla index -->
+{% block title %}Gestión Canaima{% endblock %}	
+{% block contenido %}
+<html>
+<head>
+    <title>Registrar Tipo de Educación</title>
+</head>
+<script type="text/javascript">
+$(document).ready(function(){
+
+    $('input').on({
+		keypress: function() {
+			$(this).parent('div').removeClass('has-error');
+		}
+    });
+    
+    $('#tipo').alpha({allow:" "}); //Valida solo valores numericos y texto
+    $('#registrar_tip').click(function(e) {
+		e.preventDefault();
+		var id = $('#id_r').val()
+		if (($('#tipo').val().trim() == '')) {
+			bootbox.alert("Debe indicar el Tipo de Educación", function() {
+				$('#tipo').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+				$('#tipo').focus()  
+			});
+		}
+		else{
+			$.post('',$('#form_tipo_educ').serialize()+'&bandera=true'+'&id='+id,function(response){
+				if (response == 'existe') {
+					bootbox.alert("Este Tipo de Educación ya esta registrado", function() {
+						$('#tipo').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+						$('#tipo').focus()
+					});
+				}else{
+					url = '/menu/configuraciones/tipo_educacion/listar/'
+					window.location = url
+				}
+			});
+		}
+	});
+    $('#volver_tip').click(function(){
+        url = '/menu/configuraciones/tipo_educacion/listar/'
+        window.location = url
+    })
+});
+
+</script>
+	<body>
+    <form method="post" id="form_tipo_educ" enctype="multipart/form-data">
+	{% csrf_token %}
+	<br/>
+	<div style="width: 100%;text-transform:uppercase;box-shadow: 0 1px 5px rgba(0,0,0,.85)" class="panel panel-danger">
+	     <div class="panel-heading text-center">
+			<label style="float: left" class="panel-title " ><a style="color: white" href="/menu/configuraciones/tipo_educacion/listar/" >Tipo de Educación</a>
+			> Visualizar</label>
+			<br>
+		</div>
+	    <br/><br/>
+	    <div class="form-inline" >
+			<div class="form-group col-xs-1" style="font-weight: bold;">Tipo</div>
+			<div class="form-group col-xs-5">
+				<input id="tipo" maxlength="15"  style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();" value='{{editar_tipo.tipo}}' placeholder="Ejemplo: Primaria" name="tipo" type="text" />
+			</div>
+	    </div>
+		<input id='id_r' type="hidden" name='user_create' value='{{editar_tipo.id}}'>
+	    <input id='user_update' type="hidden" name='user_update' value='{{ user.id }}'>
+	    <input id='user_create' type="hidden" name='user_create' value='{{editar_tipo.user_create.id}}'>
+	    <br/><br/><br/>
+	    <div class="row" style="text-align: center">
+			<button type="button" id="volver_tip" style="font-weight: bold;font-size: 13px" class="btn btn-warning " >
+				&nbsp;<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+			</button>
+			<button type="button" id="registrar_tip" style="font-weight: bold;font-size: 13px" class="btn btn-danger">
+				&nbsp;<span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;Registrar
+			</button>
+			<button type="reset" id="limpiar" style="font-weight: bold;font-size: 13px; background: linear-gradient(#f4eb2f, #e5a32d); color: white " class="btn">
+				&nbsp;<span class="glyphicon glyphicon-retweet"></span>&nbsp;&nbsp;Limpiar
+			</button>
+	    </div>
+		<br/>
+	</div>
+	<br/>
+    </form>
+</body>
+</html>
+	{% endblock contenido%}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+<script>
+$(document).ready(function(){
+    var TUbch = $('#tab_soporte').dataTable({
+        "iDisplayLength": 25,
+        "iDisplayStart": 0,
+        "sPaginationType": "full_numbers",
+        "aLengthMenu": [25, 50, 75, 100],
+        "oLanguage": {"sUrl": "/static/js/es.txt"},
+        "aoColumns": [
+            {"sClass": "registro center", "sWidth": "1%"},
+			{"sClass": "registro center", "sWidth": "3%"},
+            {"sClass": "registro center", "sWidth": "5%"},
+            {"sWidth": "3%", "bSortable": false, "sClass": "center sorting_false", "bSearchable": false},
+        ]
+    });
+    $('#enviar').click(function(){
+        url = '/menu/registros/soporte/registrarsoporte/'
+        window.location = url
+    })   
+
+});
+
+</script>
+{% load templatag_grupos %}
+{% ifusergroup Soporte %}
+<div class="row-fluid" >
+	<div class="container mainbody-section text-center"  style="width:100%;">
+		<button role="button" class="btn btn-danger" style="font-weight: bold;font-size: 13px" id="enviar" >
+			&nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;Registrar Soporte
+		</button>
+		<table style="width:100%;" border="0" align="center" cellspacing="1" id="tab_soporte"
+		class="panel panel-warning  table table-bordered table-striped table-hover table-condensed dt-responsive table-responsive" >
+				<thead style="font-size: 16px">
+					<tr style="background-color: #C71C22">
+						<th style='text-align: center; color: white' colspan="11">Listado de Soportes</th>
+					</tr>
+					<tr class="danger">
+						<th style='text-align: center'>#</th>
+						<th style='text-align: center'>Solicitud</th>
+						<th style='text-align: center'>Estatus</th>
+						<th style='text-align: center'>Ver</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for m in listar_soporte %}
+					<tr style="font-size: 14px;" >
+						<td>
+							{{ forloop.counter }}
+						</td>
+						<td>
+							{{m.cod_solicitud_id__codigo}}
+						</td>
+						<td>
+							{%if m.status == '2' %}
+								REMITIDA
+							{% else %}
+								REPARADA
+							{% endif %}
+						</td>
+						<td style='text-align: center'>
+							<a href="{% url "editar_soporte" m.id %}" ><img style="width:25px;height: 25px" src="{{ STATIC_URL }}img/ver.png"/></a>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+		</table>
+	</div>
+</div>
+{% else %}
+<p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+{% endifusergroup %}
+{% endblock %}

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block contenido %}
+
+<html>
+<head>
+    <title>Registrar Institución</title>
+</head>
+<style type="text/css">
+	p.mayusculas {text-transform: uppercase}
+	p.minusculas {text-transform: lowercase}
+	p.capitaliza {text-transform: capitalize}
+</style>
+<script type="text/javascript">
+	$(document).ready(function(){
+		
+		$('select').on({
+			change: function() {
+				$(this).parent('div').removeClass('has-error');
+			}
+		});
+		$('input').on({
+			keypress: function() {
+				$(this).parent('div').removeClass('has-error');
+			}
+		});
+		
+		$("#id_cod_estado,#id_cod_municipio,#id_cod_parroquia").select2();
+		$('#nom_institucion').alphanumeric({allow:",-. "}); //Valida solo valores numericos y texto
+		$('#telefono').numeric(); //Valida solo permite valores numericos
+		$('#correo').alphanumeric({allow:"@-_."}); 
+		$('#siglas').alpha({allow:" "}); //Solo permite texto
+		$('#direccion').alphanumeric({allow:" ,.-#"}); //Solo permite texto numericos"
+		
+		$('#registrar_inst').click(function(e) {
+		e.preventDefault();
+		
+		var id_estado = $('#id_cod_estado').find('option').filter(':selected').val()
+		var id_municipio = $('#id_cod_municipio').find('option').filter(':selected').val()
+		var id_parroquia = $('#id_cod_parroquia').find('option').filter(':selected').val()
+		
+		
+		if (($('#nom_institucion').val().trim() == '')) {
+			bootbox.alert("Debe indicar el Nombre de la Institución", function() {
+			$('#nom_institucion').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+			$('#nom_institucion').focus()
+				});
+		}
+		else if (($('#siglas').val().trim() == '')) {
+			bootbox.alert("Debe indicar las siglas de la Institución", function() {
+				$('#siglas').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+				$('#siglas').focus()  
+			});
+			
+		}
+		else if (($('#telefono').val().trim() == '')) {
+			bootbox.alert("Debe indicar el teléfono de la Institución", function() {
+				$('#telefono').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+				$('#telefono').focus()    
+			}); 
+		}
+		else if (($('#correo').val().length < 10)) {
+			bootbox.alert('Disculpe, Debe indicar el Correo del Partido', function() {	    
+			$('#correo').parent('div').addClass('has-error');
+			});
+		}
+		else if (id_estado == 0) {
+			bootbox.alert('Debe indicar el Estado', function(){
+				$('#id_cod_estado').addClass('has-error');
+				$('#id_cod_estado').select2('open') 
+			});
+			
+		}
+		else if (id_municipio == 0) {
+			bootbox.alert('Debe indicar el Municipio', function(){
+				$('#id_municipio').addClass('has-error');
+				$('#id_municipio').select2('open') 
+			});
+			
+		}
+		else if (id_parroquia == 0) {
+			bootbox.alert('Debe indicar la Parroquia', function(){
+				$('#id_parroquia').addClass('has-error');
+				$('#id_parroquia').select2('open')
+			}); 
+		}
+		else if (($('#direccion').val().trim() == '')) {
+			bootbox.alert("Debe indicar la dirección de la Institución", function() {
+				$('#direccion').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+				$('#direccion').focus()    
+			}); 
+		}
+		else{
+			$.post('',$('#form_inst').serialize()+'&bandera=true',function(response){
+				if (response == 'existe') {
+					bootbox.alert("Esta Institución ya esta registrada", function() {
+						$('#nom_institucion').parent('div').addClass('has-error'); // colocar class has-error de boostrap
+						$('#nom_institucion').focus()
+					});
+				}else{
+					$('#form_inst').submit();
+				}
+			});
+		}
+		});
+		
+		
+		$('#volver_inst').click(function(){
+			url = '/menu/configuraciones/instituciones/'
+			window.location = url
+		})
+		$('#limpiar').click(function(){
+			//$('#id_partido').select2('val', '0');
+		})
+	});
+
+</script>
+{% load templatag_grupos %}
+<body>
+    <form method="post" id="form_inst" enctype="multipart/form-data">
+	{% csrf_token %}
+	<div style="width: 100%;text-transform:uppercase;box-shadow: 0 1px 5px rgba(0,0,0,.85);text-align: left" class="panel panel-danger">
+	    <div class="panel-heading text-center">
+			<label style="float: left" class="panel-title " ><a style="color: white" href="/menu/configuraciones/instituciones/" >Instituciones</a>
+			> Registrar</label>
+			<br>
+		</div>
+	    <br/>
+		<fieldset><legend class="titulo" style="text-align: center">Datos de la Institución</legend></fieldset>
+
+	    <br/>
+	     <div class="form-inline" >
+		
+		<div class="col-xs-1" style="font-weight: bolder;">Nombre</div>
+		<div class="col-xs-5">
+		    <label class="fom_ley"></label><input id="nom_institucion" style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();" placeholder="Nombre de la Institución" maxlength="100" name="nom_institucion" type="text" />
+		</div>
+		
+		<div class="form-group col-xs-1" style="font-weight: bolder;">Siglas</div>
+		<div class="form-group col-xs-5">
+		    <label class="fom_ley"></label><input id="siglas" maxlength="15" style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();" placeholder="Siglas o Abreviatura" name="siglas" type="text" />
+		</div>
+	    </div>
+	    <br/><br/><br/>
+	   
+	    <div class="form-inline">
+		
+		<div class="form-group col-xs-1">
+		    <label>Teléfono</label>
+		</div>
+		<div class="form-group col-xs-5">
+		    <input id="telefono" style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();" font-size: 13px" maxlength="11" placeholder="Ejemplo: 02432335566" name="telefono" type="text" />
+		</div>
+		<div class="form-group col-xs-1">
+		    <label>Correo</label>
+		</div>
+		<div class="form-group col-xs-5">
+		    <input id="correo" name="correo" style="width:100%;font-size: 13px;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();" placeholder="Ejemplo: correo@gmail.com"  maxlength="100" type="text" />
+		</div>
+	    
+	    </div>
+	    <br/> <br/><br/>
+	    <div class="form-inline" >
+			<div class="form-group col-xs-1">
+				<label>Estados</label>
+			</div>
+			<div class="form-group col-xs-5">
+				<select style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();" class="form-control input-sm" id="id_cod_estado" name="estado" required=True>
+					<option value="0">Seleccione</option>
+					{% for e in listar_estados %}
+					<option value="{{e.cod_estado}}">{{ e.estado }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="form-group col-xs-1">
+				<label>Municipios</label>
+			</div>
+			<div class="form-group col-xs-5">
+				<select style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();" id="id_cod_municipio" name="municipio">
+					<option value="0" selected="selected">Seleccione</option>
+				</select>
+			</div>
+	    </div>
+	    <br/><br/><br/>
+	    <div class="form-inline">
+		
+			<div class="form-group col-xs-1">
+				<label>Parroquias</label>
+			</div>
+			<div class="form-group col-xs-5">
+				<select style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();" id="id_cod_parroquia" name="parroquia">
+					<option value="0" selected="selected">Seleccione</option>
+				</select>
+			</div>
+			<div style="text-align: left;font-weight: bold;">
+				<div class="form-group col-xs-1">
+					<label>Activa</label>
+				</div>
+				<div class="form-group col-xs-1">
+					<input type="checkbox" id="institucion_activa" name="institucion_activa" style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();"/>
+				</div>
+				<div class="form-group col-xs-3">
+					<label>**¿Institución Activa?</label>
+				</div>
+			</div>
+	    </div>
+	    <br/> <br/><br/>
+		
+		<div class="form-inline">
+			<div class="form-group col-xs-1">
+				<label>Dirección</label>
+			</div>
+			<div class="form-group col-xs-11">
+				<textarea id="direccion" name="direccion" style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();"></textarea>
+			</div>
+	    </div>
+	    <br/><br/>
+		
+	    <input id='user_create' type="hidden" name='user_create' value='{{ user.id }}'>
+	    <br/><br/><br/>
+		<div class="row" style="text-align: center">
+			<button type="button" id="volver_inst" style="font-weight: bold;font-size: 13px" class="btn btn-warning " >
+				&nbsp;<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+			</button>
+			<button type="button" id="registrar_inst" style="font-weight: bold;font-size: 13px" class="btn btn-danger">
+				&nbsp;<span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;Registrar
+			</button>
+			<button type="reset" id="limpiar" style="font-weight: bold;font-size: 13px; background: linear-gradient(#f4eb2f, #e5a32d); color: white " class="btn">
+				&nbsp;<span class="glyphicon glyphicon-retweet"></span>&nbsp;&nbsp;Limpiar
+			</button>
+	    </div>
+		<br/>
+	</div>
+	<br/>
+    </form>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block contenido %}
+<html>
+<head>
+    <title>Eliminar Estado</title>
+</head>
+{% load templatag_grupos %}
+{% ifusergroup Topologia %}
+<script>
+$(document).ready(function() {
+    $('#volver,eliminar').click(function(){
+        url = '/menu/topologia/estados/'
+        window.location = url
+    })
+});
+
+</script>
+<body>
+	<div class="text-left">
+    <H3 style="color: red" class="text-center">Eliminar Estado</H3>
+    
+    <form method="post" class="text-center">{% csrf_token %}
+	<h3 style="color: red">¿Está seguro que quiere borrar este estado "{{ borrar_estado }}" ? </h3>
+	{% if cantidad > 0 %}
+	    <h4 style="color: red">Disculpe, pero no puede Eliminar este Estado porque ya esta <span style="color: red"> vinculado a 1 o más Municipios</span></h4>
+	{% endif%}
+	<button style="font-weight: bold;font-size: 13px" type="button" id="volver" class="btn btn-warning"/>
+	    <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+	</button>
+	<button style="font-weight: bold" type="submit" id="eliminar" class="btn btn-danger"
+	    {% if cantidad > 0 %}
+		disabled="disabled" 
+	    {% endif %}
+	/><span class="glyphicon glyphicon-remove"></span>&nbsp;Eliminar
+	</button>
+	
+    </form>
+    {% else %}
+    <p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+    {% endifusergroup %}
+	<br>
+</body>
+</html>
+{% endblock %}

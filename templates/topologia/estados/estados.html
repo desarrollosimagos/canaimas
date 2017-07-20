@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block contenido %}
+<html>
+<head>
+    <title>Registrar Estados</title>
+
+    	
+
+</head>
+<script type="text/javascript">
+$(document).ready(function(){
+
+    $('#estado').alpha({allow:" "}); //Valida solo valores tipo texto
+    $('#id_cod_estado_e').numeric(); //Valida solo valores tipo texto
+    $('#registrar_est').click(function(e){ //Valida al guardar que el tipo no sea menor a 5 caracteres
+        e.preventDefault();
+        
+        $('input').on({
+			keypress: function() {
+			$(this).parent('div').removeClass('has-error');
+			}
+		});
+        // REINICIAR LOS COLORES
+	$('#id_cod_estado_e').css('border','');
+	$('#estado').css('border','');
+        //alert("hola")
+        if (($('#id_cod_estado_e').val() == '')) {
+            bootbox.alert('Disculpe, Debe Colocar el Código del Estado', function() {	    
+                $('#id_cod_estado_e').parent('div').addClass('has-error');
+            });
+		}
+        else if (($('#estado').val() == '')) {
+            bootbox.alert('Disculpe, Debe Colocar el Nombre del Estado', function() {
+                $('#estado').parent('div').addClass('has-error');
+            });
+		}
+        else if ($('#estado').val().length < 4) {
+            bootbox.alert('Disculpe, Nombre de estado invalido (Muy Corto)', function() {	    
+                $('#estado').parent('div').addClass('has-error');
+            });
+        }
+        //Valida que el campo no este vacio
+        else if($('#estado').val() == null ||  $('#estado').val().length == 0 || /^\s+$/.test($('#estado').val())) {
+            bootbox.alert('Disculpe, Nombre Estado esta vacio', function() {	    
+                $('#estado').parent('div').addClass('has-error');
+            });
+        }
+        else if($('#id_cod_estado_e').val() == null ||  $('#id_cod_estado_e').val().length == 0 || /^\s+$/.test($('#id_cod_estado_e').val())) {
+            bootbox.alert('Disculpe, Código esta vacio', function() {	    
+                $('#estado').parent('div').addClass('has-error');
+            });
+        }
+        else if($('#id_cod_estado_e').val() == 00 || $('#id_cod_estado_e').val() == 0 ) {
+            bootbox.alert('Disculpe, Código invalido', function() {	    
+                $('#id_cod_estado_e').parent('div').addClass('has-error');
+            });
+        }
+        else {
+            $.post('',$('#form_estado').serialize()+'&bandera=true',function(response){
+                if (response == 'existe') {
+                    bootbox.alert('Disculpe, Este Nombre de Estado Ya esta Registrado', function() {	    
+                        $('#estado').parent('div').addClass('has-error');
+                    });
+                }
+                else if (response == 'existe_c') {
+                    bootbox.alert('Disculpe, Este Código de Estado Ya esta Registrado', function() {	    
+                        $('#id_cod_estado_e').parent('div').addClass('has-error');
+                    });
+                }
+                else{
+                   $('#form_estado').submit(); 
+                }
+            });
+        }
+    });
+    $('#volver').click(function(){
+        url = '/menu/topologia/estados/'
+        window.location = url
+    })
+});
+</script>
+<style>
+    label{
+        font-weight: bold
+    }
+</style>
+<body>
+    {% load templatag_grupos %}
+    {% ifusergroup Topologia %}
+    <form method="post" id="form_estado" class="form-horizontal">
+	{% csrf_token %}
+	<div class="text-left">
+        <div style="width: 100%;text-transform:uppercase;box-shadow: 0 1px 5px rgba(0,0,0,.85);text-align: left" class="panel panel-danger">
+			<div class="panel-heading">
+				<label style="float: left" class="panel-title " ><a style="color: white" href="/menu/topologia/estados/" >Estados</a>
+				> Registrar Estado</label>
+				<br>
+			</div>
+			<fieldset><legend class="titulo text-center">Datos del Estado</legend></fieldset>
+            <br/>
+			<div class="panel-body">
+				<div class="col-xs-1" ><label>Código</label></div>
+				<div class="col-xs-5">
+					<input class="form-control" autofocus="" type='text' placeholder="Ej: 8" id="id_cod_estado_e" maxlength="2" name="cod_estado" style="width:100%;text-transform:uppercase;"/>
+				</div>
+				<div class="col-xs-1" ><label>Estado</label></div>
+				<div class="col-xs-5">
+					<input class="form-control"  type='text' placeholder="Nombre del Estado" maxlength="20" id="estado" name="estado" style="width:100%;text-transform:uppercase;" onkeyup="javascript:this.value=this.value.toUpperCase();"/>
+				</div>
+			</div>
+			<br/><br/>
+			<div class="row" style="text-align: center">
+				<button type="button" id="volver" style="font-weight: bold;font-size: 13px" class="btn btn-warning " >
+					&nbsp;<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Volver
+				</button>
+				<button type="submit" id="registrar_est" style="font-weight: bold;font-size: 13px" class="btn btn-danger"/>
+					&nbsp;<span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;Registrar
+				</button>
+				<button type="reset" id="limpiar" style="font-weight: bold;font-size: 13px; background: linear-gradient(#f4eb2f, #e5a32d); color: white " class="btn"/>
+					&nbsp;<span class="glyphicon glyphicon-retweet"></span>&nbsp;&nbsp;Limpiar
+				</button>
+			</div>
+            <br/>
+        </div>
+		<br/><br/>
+        {% else %}
+        <p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+        {% endifusergroup %}
+    </form>
+</body>
+</html>
+{% endblock %}

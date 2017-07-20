@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+{% block contenido %}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Reporte Solicitudes</title>
+</head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+<script src="{{ STATIC_URL }}js/exporting.js"></script>
+<script src="{{ STATIC_URL }}js/drilldown.js"></script>
+<script type="text/javascript">
+    var chart;
+
+    $(document).ready(function(){
+		var startDate = new Date('01/01/2015');
+		var FromEndDate = new Date();
+		var ToEndDate = new Date();
+		
+		ToEndDate.setDate(ToEndDate.getDate()+365);
+		
+		$('#from_date').datepicker({
+			format: "dd-mm-yyyy",
+			endDate: FromEndDate,
+			language: "es",
+			//startView: 1,
+			autoclose: true,
+			startDate: "-1y"
+		})
+		.on('changeDate', function(selected){
+			startDate = new Date(selected.date.valueOf());
+			startDate.setDate(startDate.getDate(new Date(selected.date.valueOf())));
+			$('#to_date').datepicker('setStartDate', startDate);
+		}); 
+		$('#to_date')
+			.datepicker({
+			format: "dd-mm-yyyy",
+			startDate: startDate,
+			endDate: ToEndDate,
+			autoclose: true,
+			language: "es"
+		})
+		.on('changeDate', function(selected){
+			FromEndDate = new Date(selected.date.valueOf());
+			FromEndDate.setDate(FromEndDate.getDate(new Date(selected.date.valueOf())));
+			$('#from_date').datepicker('setEndDate', FromEndDate);
+		});
+		
+		
+		
+		$('#id_tipo').change(function() {
+			var tipo = $(this).val();
+			if (tipo == 1) { //TODO
+				$('#id_cod_estado').select2('val', '0');
+				$('#id_cod_municipio').find('option:gt(0)').remove().end().select2('val', '0');
+				$('#id_cod_estado,#id_cod_municipio,#id_cod_parroquia,#id_status').prop('disabled',true)
+			}else if (tipo == 2) { //Por Estado
+				$('#id_cod_estado').select2('val', '0');
+				$('#id_cod_municipio').prop('disabled',true)
+				$('#id_cod_municipio').find('option:gt(0)').remove().end().select2('val', '0');
+				$('#id_cod_estado').prop('disabled',false)
+			}else if (tipo == 3) { //Por Municipio
+				$('#id_cod_estado').select2('val', '0');
+				$('#id_cod_parroquia').prop('disabled',true)
+				$('#id_cod_parroquia').find('option:gt(0)').remove().end().select2('val', '0');
+				$('#id_cod_estado,#id_cod_municipio').prop('disabled',false)
+			}else if (tipo == 4) { //Por Parroquia
+				$('#id_cod_estado').select2('val', '0');
+				$('#id_cod_parroquia').prop('disabled',true)
+				$('#id_cod_parroquia').find('option:gt(0)').remove().end().select2('val', '0');
+				$('#id_cod_estado,#id_cod_municipio,#id_cod_parroquia').prop('disabled',false)
+			}else{ //Por Estatus
+				$('#id_status').select2('val', '0');
+				$('#id_cod_estado,#id_cod_municipio,#id_cod_parroquia').prop('disabled',true)
+				$('#id_status').prop('disabled',false)
+			}
+		});
+        $("#id_cod_estado,#id_cod_municipio,#id_cod_parroquia,#id_institucion,#id_tipo,#id_status").select2();
+        $('#exportar_general').click(function(){
+			var tipo = $('#id_tipo').find('option').filter(':selected').val()
+			var status = $('#id_status').find('option').filter(':selected').val()
+			var institucion = $('#id_institucion').find('option').filter(':selected').val()
+			var estado = $('#id_cod_estado').find('option').filter(':selected').val()
+			var municipio = $('#id_cod_municipio').find('option').filter(':selected').val()
+			var parroquia = $('#id_cod_parroquia').find('option').filter(':selected').val()
+			var desde = $('#from_date').val()
+			var hasta = $('#to_date').val()
+			
+            if (desde == '' && hasta == '') {
+				bootbox.alert('Debe Seleccionar la fecha para exportar el PDF', function() {	    
+					$('#from_date,#to_date').focus();
+				});
+			}else if (tipo == 0) {
+                bootbox.alert('Debe Seleccionar el tipo de reporte para poder exportar el PDF', function() {	    
+					$('#id_tipo').select2('open');
+				});
+            }else if (institucion == 0) {
+                bootbox.alert('Debe Seleccionar la Institución para poder exportar el PDF', function() {	    
+					$('#id_institucion').select2('open');
+				});
+            }else if ((tipo == 2 ) && estado == 0) {
+                bootbox.alert('Debe Seleccionar el Estado para poder exportar el PDF', function() {	    
+					$('#id_cod_estado').select2('open');
+				});
+            }else if ((tipo == 3 ) && municipio == 0) {
+                bootbox.alert('Debe Seleccionar el Municipio para poder exportar el PDF', function() {	    
+					$('#id_cod_municipio').select2('open');
+				});
+            }else if ((tipo == 4 ) && parroquia == 0) {
+                bootbox.alert('Debe Seleccionar la Parroquia para poder exportar el PDF', function() {	    
+					$('#id_cod_parroquia').select2('open');
+				});
+            }else if ((tipo == 5 ) && status == 0) {
+                bootbox.alert('Debe Seleccionar el Estatus para poder exportar el PDF', function() {	    
+					$('#id_status').select2('open');
+				});
+            }else{
+				
+				var url = '/menu/reportes/reportes_solicitudes/reporte/?bandera=pdf&tipo='+tipo
+                
+				if (desde != '' && hasta != '') {
+					url += '&desde='+desde+'&hasta='+hasta
+				}
+				
+				if (tipo == 1) {
+					//url = 'reporte/'+tipo+'/'+institucion+"/0/0/0"
+					
+					url += '&institucion='+institucion+'&estado=0&municipio=0&parroquia=0&estatus=0'
+					
+					//alert('general: '+url)
+					//url = url
+				}else if (tipo == 2){
+					//url += "/"+estado
+					url += '&institucion='+institucion+'&estado='+estado+'&municipio=0&parroquia=0&estatus=0'
+					//alert('Por estado: '+url)
+				}else if (tipo == 3){
+					//url += "/"+municipio
+					url += '&institucion='+institucion+'&estado='+estado+'&municipio='+municipio+'&parroquia=0&estatus=0'
+					//alert('municipio: '+url)
+				}else if (tipo == 4){
+					//url += "/"+parroquia
+					url += '&institucion='+institucion+'&estado='+estado+'&municipio='+municipio+'&parroquia='+parroquia+'&estatus=0'
+					//alert('parroquia: '+url)
+				}else{
+					//url +="/"+estatus
+					url += '&institucion='+institucion+'&estado='+estado+'&municipio='+municipio+'&parroquia='+parroquia+'&status='+status
+					//alert('estatus: '+url)
+				}
+				window.open(url); 
+            }
+        });
+		
+		$('#general').click(function(){
+			
+			var tipo = $('#id_tipo').find('option').filter(':selected').val()
+			var status = $('#id_status').find('option').filter(':selected').val()
+			var institucion = $('#id_institucion').find('option').filter(':selected').val()
+			var estado = $('#id_cod_estado').find('option').filter(':selected').val()
+			var municipio = $('#id_cod_municipio').find('option').filter(':selected').val()
+			var parroquia = $('#id_cod_parroquia').find('option').filter(':selected').val()
+			var desde = $('#from_date').val()
+			var hasta = $('#to_date').val()
+			sub_titulo = "Del "+desde+" al "+hasta
+			
+            if (desde == '' && hasta == '') {
+				bootbox.alert('Debe Seleccionar la fecha para generar la gráfica', function() {	    
+					$('#from_date,#to_date').focus();
+				});
+			}else if (tipo == 0) {
+                bootbox.alert('Debe Seleccionar tipo de reporte para poder generar la gráfica', function() {	    
+					$('#id_tipo').select2('open');
+				});
+            }else if (institucion == 0) {
+                bootbox.alert('Debe Seleccionar la Institución para poder generar la gráfica', function() {	    
+					$('#id_institucion').select2('open');
+				});
+            }else if ((tipo == 2 ) && estado == 0) {
+                bootbox.alert('Debe Seleccionar el Estado para poder generar la gráfica', function() {	    
+					$('#id_cod_estado').select2('open');
+				});
+            }else if ((tipo == 3 ) && municipio == 0) {
+                bootbox.alert('Debe Seleccionar el Municipio para poder generar la gráfica', function() {	    
+					$('#id_cod_municipio').select2('open');
+				});
+            }else if ((tipo == 4 ) && parroquia == 0) {
+                bootbox.alert('Debe Seleccionar la Parroquia para poder generar la gráfica', function() {	    
+					$('#id_cod_parroquia').select2('open');
+				});
+            }else if ((tipo == 5 ) && status == 0) {
+                bootbox.alert('Debe Seleccionar el Estatus para poder generar la gráfica', function() {	    
+					$('#id_status').select2('open');
+				});
+            }else{
+				
+				var url = '/menu/reportes/reportes_solicitudes/reporte/?bandera=grafica&tipo='+tipo
+                
+				if (desde != '' && hasta != '') {
+					url += '&desde='+desde+'&hasta='+hasta
+				}
+				
+				if (tipo == 1) {
+						//url = 'reporte/'+tipo+'/'+institucion+"/0/0/0"
+						
+						url += '&institucion='+institucion+'&estado=0&municipio=0&parroquia=0&estatus=0'
+						
+						//alert('general: '+url)
+						//url = url
+					}else if (tipo == 2){
+						//url += "/"+estado
+						url += '&institucion='+institucion+'&estado='+estado+'&municipio=0&parroquia=0&estatus=0'
+						//alert('Por estado: '+url)
+					}else if (tipo == 3){
+						//url += "/"+municipio
+						url += '&institucion='+institucion+'&estado='+estado+'&municipio='+municipio+'&parroquia=0&estatus=0'
+						//alert('municipio: '+url)
+						//alert('Por Municipio: '+url)
+					}else if (tipo == 4){
+						//url += "/"+parroquia
+						url += '&institucion='+institucion+'&estado='+estado+'&municipio='+municipio+'&parroquia='+parroquia+'&estatus=0'
+						//alert('parroquia: '+url)
+					}else{
+						//url +="/"+estatus
+						url += '&institucion='+institucion+'&estado='+estado+'&municipio='+municipio+'&parroquia='+parroquia+'&status='+status
+						//alert('estatus: '+url)
+					}
+					$.get(url, function(response) {
+						
+						// Make monochrome colors and set them as default for all pies
+						Highcharts.getOptions().plotOptions.pie.colors = (function () {
+							var colors = [],
+								base = Highcharts.getOptions().colors[0],
+								i;
+						
+							for (i = 0; i < 10; i += 1) {
+								// Start out with a darkened base color (negative brighten), and end
+								// up with a much brighter color
+								colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
+							}
+							return colors;
+						}());
+						
+						if (response != '' ) {
+							// Build the chart
+							$('#container1').highcharts({
+								chart: {
+									plotBackgroundColor: null,
+									plotBorderWidth: null,
+									plotShadow: false,
+									type: 'pie'
+								},
+								title: {
+									text: 'Reporte de equipos canaima por estatus'
+								},
+								subtitle: {
+									text: sub_titulo
+								},
+								tooltip: {
+									pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+								},
+								plotOptions: {
+									pie: {
+										allowPointSelect: true,
+										cursor: 'pointer',
+										dataLabels: {
+											enabled: true,
+											format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+											style: {
+												color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+											}
+										}
+									}
+								},
+								series: [{
+									
+									data: response
+								}]
+							});
+							
+							console.log(response)
+							// Create the chart
+							$('#container2').highcharts({
+								chart: {
+									type: 'column'
+								},
+								title: {
+									text: 'Reporte de equipos canaima por estatus'
+								},
+								subtitle: {
+									text: sub_titulo
+								},
+								xAxis: {
+									type: 'category'
+								},
+								yAxis: {
+									title: {
+										text: 'Total equipos canaima'
+									}
+						
+								},
+								legend: {
+									enabled: false
+								},
+								plotOptions: {
+									series: {
+										borderWidth: 0,
+										dataLabels: {
+											enabled: true,
+											format: '{point.y:.1f}%'
+										}
+									}
+								},
+						
+								tooltip: {
+									headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+									pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> de total<br/>'
+								},
+						
+								series: [{
+									
+									data: response
+									
+								}],
+								
+							});
+						}
+						else{
+							bootbox.alert('Disculpe aun no hay registros para esta fecha o institución', function() {	    
+								$('#container1,#container2').html('')
+							});
+	
+						}
+						
+					},'json')
+						
+			}
+
+        });
+		
+		$('#limpiar').click(function(){
+			$('select').select2('val',0)
+            $('input[type="text"],textarea').val('')
+		})
+		
+		
+    })
+</script>
+
+{% load templatag_grupos %}
+{% ifusergroup Atencion %}
+
+<body>
+	<div style="width: 100%;text-transform:uppercase;box-shadow: 0 1px 5px rgba(0,0,0,.85);text-align: left" class="panel panel-danger">
+        <div class="panel-heading text-center" style="font-size: 20px;font-weight: bold">
+			Generación de Reportes (Solicitud) 
+        </div>
+		<fieldset><legend class="titulo" style="font-size: 20px;font-weight: bold">&nbsp;&nbsp;&nbsp;&nbsp;Seleccione rango de fecha y tipo de reporte</legend></fieldset>
+        <div class="panel-body">
+            <div class="form-group col-xs-1"><label>Desde</label></div>
+            <div class="form-group col-xs-5">
+				<input id="from_date" placeholder="SELECCIONE FECHA INICIAL" contenteditable="false" type="text">
+            </div>
+			<div class="form-group col-xs-1"><label>Hasta</label></div>
+            <div class="form-group col-xs-5">
+				<input id="to_date" placeholder="SELECCIONE FECHA INICIAL" contenteditable="false" type="text">
+            </div>
+			<br/><br/><br/>
+			<div class="col-xs-1"><label>Tipo</label></div>
+            <div class="col-xs-5">
+				<select style="width: 100%;font-size: 13px" id="id_tipo" name='tipo'>
+					<option value='0'>SELECCIONE</option>
+					<option value='1'>GENERAL</option>
+					<option value='2'>POR ESTADO</option>
+					<option value='3'>POR MUNICIPIO</option>
+					<option value='4'>POR PARROQUIA</option>
+					<option value='5'>POR ESTATUS</option>
+				</select>
+			</div>
+			<div class="col-xs-1"><label>Institución</label></div>
+            <div class="col-xs-5">
+				<select style="width: 100%;font-size: 13px" id="id_institucion" name='institucion'>
+					<option value='0'>SELECCIONE</option>
+					{% for ins in institucion %}
+					<option value='{{ins.id}}'>{{ins.nom_institucion}}</option>
+					{% endfor %}
+				</select>
+			</div>
+        </div>
+		<fieldset><legend class="titulo" style="font-size: 20px;font-weight: bold"></legend></fieldset>
+		<div class="panel-body">
+			<div class="col-xs-1"><label>Estatus</label></div>
+            <div class="col-xs-5">
+				<select style="width: 100%;font-size: 13px" id="id_status" name='status'>
+					<option value='0'>SELECCIONE</option>
+					<option value='1'>ATENDIENDO</option>
+					<option value='2'>REPARADA</option>
+					<option value='3'>REMITIDA</option>
+					<option value='4'>ENTREGADA</option>
+					<option value='5'>DEVUELTA</option>
+				</select>
+			</div>
+		</div>
+		<fieldset><legend class="titulo" style="font-size: 20px;font-weight: bold"></legend></fieldset>
+		<div class="panel-body" id="div_topologia">
+			<div class="col-xs-1" ><label>Estados</label></div>
+			<div class="col-xs-5">
+				<select style="width:100%;" class="form-control input-sm" id="id_cod_estado" name="estado" required=True>
+					<option value="0">SELECCIONE</option>
+					{% for e in list_estados %}
+					<option value="{{e.cod_estado}}">{{ e.estado }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="col-xs-1" ><label>Municipios</label></div>
+			<div class="col-xs-5">
+				<select style="width:100%;" id="id_cod_municipio" name="municipio">
+					<option value="0" selected="selected">SELECCIONE</option>
+				</select>
+			</div>  
+		</div>
+		<div class="panel-body" id="div_topologia">
+		<div class="col-xs-1" ><label>Parroquias</label></div>
+			<div class="col-xs-5">
+				<select style="width:100%;" id="id_cod_parroquia" name="parroquia">
+					<option value="0" selected="selected">SELECCIONE</option>
+				</select>
+			</div>  
+		</div>
+		<div class="panel-body" style="text-align: left;font-weight: bold">
+			<br/><br/>
+            <div class="col-xs-5">
+				<button role="button" id="general" style="font-weight: bold;" class="btn btn-danger">
+					<span class="glyphicon glyphicon-stats"></span>&nbsp;Gráfico&nbsp;
+				</button>
+				<button role="button" id="exportar_general" style="font-weight: bold;"  class="btn btn-danger">
+					<span class="glyphicon glyphicon-file"></span>&nbsp;PDF
+				</button>
+				<button type="reset" id="limpiar" style="font-weight: bold;font-size: 13px" class="btn btn-danger">
+					&nbsp;<span class="glyphicon glyphicon-retweet"></span>&nbsp;&nbsp;Limpiar
+				</button>
+			</div>
+		</div>
+	
+		<div id="id_graficas" style="width: 100%">
+			<div style="float: left;width: 50%;">
+				<div id="container1" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+			</div>
+			<div style="float: left;width: 50%;">
+				<div id="container2" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+			</div>
+		</div>
+		<div style="width: 50%">
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+		</div> 
+    </div> 
+</body>
+{% else %}
+<p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+{% endifusergroup %}
+</html>
+{% endblock %}

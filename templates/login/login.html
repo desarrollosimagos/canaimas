@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>GESTIÓN CANAIMA</title>
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.css"/>
+		<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-theme.css"/>
+		<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/animate.css"/>
+		<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/apprise.css"/>
+		<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/estilo.css"/>
+		<script src="{{STATIC_URL}}js/jquery-1.11.2.min.js"></script>
+		<script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+		<script src="{{STATIC_URL}}js/apprise.js"></script>
+		<script src="{{STATIC_URL}}js/validarcampos.js"></script>
+		<script src="{{STATIC_URL}}js/jquery.dataTables.js"></script>
+        <script type="text/javascript">
+			$(document).ready(function(){
+				$('#username').focus();
+				$('#entrar').click(function(event) {
+					event.preventDefault();
+					if($('#username').val() == '') {
+						$('#username').parent('div').addClass('has-error').focus();
+						$('#username').focus();
+					}else if ($('#password').val() == '') {
+						$('#password').parent('div').addClass('has-error').focus();
+						$('#password').focus();
+					}else{
+						$('#frmlogin').submit();
+					}
+				})
+			})
+        </script> 
+    
+        <style type="text/css">
+	    html, body {
+                height: 100%;
+                /*background-color: #E2E2E2;*/
+            }
+	    body{
+		font-size: 12px;
+	    }
+            .container {
+                width: 50%;
+				
+				
+            }
+            .container > .content {
+                /*background-color: #C2D9EA;*/
+                padding: 20px;
+                margin: 0 -20px; 
+                /*-webkit-border-radius: 10px 10px 10px 10px;*/
+                /*-moz-border-radius: 10px 10px 10px 10px;*/
+                /*border-radius: 10px 10px 10px 10px;*/
+                /*-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);*/
+                /*-moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);*/
+                /*box-shadow: 0 1px 2px rgba(0,0,0,.15);*/
+                margin-top: 15%;
+            }
+            .login {
+                margin-left: 65px;
+	    
+            }           
+            html, body {
+				height: 50%;
+				background-image: url({{ STATIC_URL }}img/fondo.jpg); background-size: 100%; background-repeat: no-repeat 
+			}
+	    #contenedor {
+	      min-height: 85%;
+	      height: auto !important;
+	      height: 100%;
+	      margin: 0 auto -20px;
+	    }
+	    #header{
+	      background-color: #FFFFFF;
+	      text-align: center;
+	    }
+	    #footer{
+	      height: 55px;
+	      position: fixed;
+	      bottom: 0px;
+	      width:100% !important;
+	      background-color: #FFFFFF;
+	    }
+	    .content {
+		-moz-animation-duration: 4s;
+		-webkit-animation-duration: 4s;
+		-op-animation-duration: 4s;
+	    }
+        </style>
+
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(["setDomains", ["*.canaimitas.bva.org.ve"]]);
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//estadistica.bva.org.ve/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', 16]);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//estadistica.bva.org.ve/piwik.php?idsite=16" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+
+    </head>
+    <body>
+    <nav  style="margin-bottom:0">
+        <div align="center">
+            <img src="{{ STATIC_URL }}img/tope.jpg" style="width: 100%"/>
+        </div>
+    </nav>
+      
+        <div id="contenedor">
+            <div class="container">
+				<div class="content animated fadeIn">
+					
+				  <div class="row">
+					  <div class="login login-form">
+						<div class="panel" style='width:100%; box-shadow: 0 1px 5px rgba(0,0,0,.85) '>
+							<div class="panel-heading text-center" style="background: linear-gradient(#ef1426, #a60101)">
+								<label class="panel-title " style="font-size: 18px; color: white">INICIAR SESIÓN</label>
+							</div>
+							<br>
+							<br>
+							<form id="frmlogin" class="form-horizontal"   method="POST" enctype="multipart/form-data" autocomplete="off" role="form">
+							{% csrf_token %}
+								<div class="panel-body" >
+									<div class="form-group col-xs-6">
+										<img src="{{ STATIC_URL }}img/003.png" style="width: 70%"/>
+									</div>
+									<div class="form-group col-xs-6">
+										<div class="form-inline">
+											<div id="div_usuario" class='input-group col-sm-12'>
+												<span class="input-group-addon" style="width:5%">
+													<span class="glyphicon glyphicon-user"></span>
+												</span>
+												<input type="text" class="form-control input-sm letras" style="width: 230px; height: 40px; font-size: 16px" id="username" name="username"placeholder="Usuario">
+											</div>
+										</div>
+										<br>
+										<br>
+										<div class="form-inline">
+											<div id="div_contrasena" class="input-group col-sm-12">
+												<span class="input-group-addon" style="width:5%">
+													<span class="glyphicon glyphicon-lock" ></span>
+												</span>
+												<input style="width: 230px; height: 40px; font-size: 16px" type="password" class="form-control input-sm letras" id="password" name="password" placeholder="Contrase&ntilde;a"/>
+											</div>
+											<br>
+											<br>
+										</div>
+										<br>
+										<div class="form-inline">
+											<center>
+													<input type="submit" id="entrar" class="btn btn-warning btn-lg btn-block" style="width:75%; " value="Entrar" />									
+											</center>
+										</div>
+									</div>
+								</div>
+							</form>
+					  </div>
+					  </div>
+				  </div>
+				</div>
+			</div>
+			<br>
+			<br>
+        </div>
+        
+    </body>
+	
+</html>       

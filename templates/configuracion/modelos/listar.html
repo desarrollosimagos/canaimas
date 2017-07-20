@@ -1,0 +1,99 @@
+{% extends "base.html" %} <!-- Heredando (Bloque) plantilla index -->
+{% block title %}Gestión Canaima{% endblock %}
+
+{% block contenido %}
+
+<html>
+
+<script type="text/javascript">
+   $(document).ready(function(){
+    var TUbch = $('#tab_modelo').dataTable({
+        "iDisplayLength": 11,
+        "iDisplayStart": 0,
+        "sPaginationType": "full_numbers",
+        "aLengthMenu": [10, 20, 30],
+        "oLanguage": {"sUrl": "/static/js/es.txt"},
+        "aoColumns": [
+            {"sClass": "registro center", "sWidth": "1%"},
+            {"sClass": "registro center", "sWidth": "40%"},
+            {"sWidth": "3%", "bSortable": false, "sClass": "center sorting_false", "bSearchable": false},
+            {"sWidth": "3%", "bSortable": false, "sClass": "center sorting_false", "bSearchable": false}
+        ]
+    });
+    $('#enviar').click(function(){
+        url = '/menu/configuraciones/modelos/registro/'
+        window.location = url
+    })
+	
+   $('.eliminar').click(function(e){
+	  e.preventDefault()
+	  var url = $(this).attr('href')
+	  var padre = $(this).closest('tr');
+	  var nRow  = padre[0];
+	  bootbox.confirm("Desea Eliminar el Registro?", function(result) {
+		 if (result) {
+			$.post(url, {csrfmiddlewaretoken: '{{ csrf_token }}','accion':'eliminar'}, function(response) {
+			   if (response.existe=='si') {
+				  bootbox.alert("El Registro no puede ser eliminado ya que posee registros asociados", function() {
+						
+				  });
+			   }else{
+				  TUbch.fnDeleteRow(nRow);
+				  bootbox.alert("El Registro fue eliminado exitosamnete", function() {
+						
+				  });
+			   }
+			},'json')	
+		 }
+	  }); 
+	  
+	  
+   });
+
+});
+</script>
+{% load templatag_grupos %}
+{% ifusergroup Administrador %}
+<body>
+<div class="row-fluid" >
+		<div class="container mainbody-section text-center"  style="width:100%;">
+			<button role="button" class="btn btn-danger" style="font-weight: bold;font-size: 13px" id="enviar" >
+				&nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;Agregar Modelo
+			</button>
+			<table style="width:100%;" border="0" align="center" cellspacing="1" id="tab_modelo"
+			class="panel panel-danger  table table-bordered table-striped table-hover table-condensed dt-responsive table-responsive" >
+				<thead style="font-size: 16px">
+					<tr style="background-color: #C71C22">
+						<th style='color: white;text-align: center' colspan="4">Listado de Modelos de Canaimas</th>
+					</tr>
+					<tr class="danger">
+						<th style='text-align: center'>#</th>
+						<th style='text-align: center'>Modelos</th>
+						<th style='text-align: center'>Editar</th>
+						<th style='text-align: center'>Borrar</th>
+					</tr>
+				</thead>
+				<tbody>    
+					{% for m in listar_modelo %}
+
+					<tr style="font-size: 14px;" >
+						<td>{{forloop.counter}} </td>
+						<td>{{m.nombre}}</td>
+						<td style='text-align: center'>
+							<a href="{% url "editar_modelos" m.id %}"><img style="width:25px;height: 25px" src="{{ STATIC_URL }}img/edit.png"/></a>
+						</td>
+						<td style='text-align: center'>
+							<a class='eliminar' href="{% url "eliminar_modelos" m.id %}"><img style="width:25px;height: 25px" src="{{ STATIC_URL }}img/borrar.png"/></a>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+{% else %}
+<p style="color: #FF0000; font-size: 18px">Disculpe No esta autorizado para esa área.</p>
+{% endifusergroup %}
+</html>
+{% endblock contenido%}

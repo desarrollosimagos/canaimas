@@ -1,0 +1,361 @@
+{% if user.is_authenticated == False %}
+<meta http-equiv="REFRESH" content='0;url=/'>
+{% endif %}
+<!DOCTYPE html>
+<html>
+<head>
+		<title>GESTIÓN CANAIMA</title>
+		<meta charset="utf-8"/>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap.theme.css">
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/select2.css"/>
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/select2-bootstrap.css"/>
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/dataTables.bootstrap.css"/>
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/dataTables.responsive.css"/>
+		<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/jquery.fancybox.css"/>
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/bootstrap-datepicker.css" />
+		<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/fileinput.min.css" />
+		<style type="text/css">
+            .fancybox-overlay-fixed {
+                z-index: 1000
+            }
+	    legend{
+		color: #1B809E;
+		text-align: center;
+	    }
+		
+        </style>
+        
+
+        <script src="{{ STATIC_URL }}js/jquery-1.11.2.min.js"></script>
+        <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+        <script src="{{ STATIC_URL }}js/jquery.dataTables.js"></script>
+        <script src="{{ STATIC_URL }}js/validaciones.js"></script>
+        <script src="{{ STATIC_URL }}js/jquery.alphanumeric.js"></script>
+		<script src="{{ STATIC_URL }}js/jquery.fancybox.js"></script>
+        <script src="{{ STATIC_URL }}js/fileinput.min.js"></script>
+        <script src="{{ STATIC_URL }}js/bootbox.js"></script>
+        
+        <script src="{{STATIC_URL}}js/bootstrap-datepicker.js"></script>
+        <script src="{{STATIC_URL}}js/bootstrap-datepicker.es.min.js"></script>
+        
+        <script src="{{ STATIC_URL }}js/select2.js"></script>
+        <script src="{{ STATIC_URL }}js/select2_locale_es.js"></script>
+        <script src="{{ STATIC_URL }}js/bootstrap-select.js"></script>
+        <script src="{{ STATIC_URL }}js/dataTables.bootstrap.js"></script>
+        <script src="{{ STATIC_URL }}js/dataTables.responsive.min.js"></script>
+        <script src="{{ STATIC_URL }}js/highcharts.js"></script>
+		<!--<script src="{{ STATIC_URL }}js/highcharts-3d.js"></script>-->
+		<script src="{{ STATIC_URL }}js/themes_highcharts.js"></script>
+        <script src="{{ STATIC_URL }}js/footerfijo.js"></script>
+
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(["setDomains", ["*.canaimitas.bva.org.ve"]]);
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//estadistica.bva.org.ve/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', 16]);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//estadistica.bva.org.ve/piwik.php?idsite=16" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+
+</head>
+<script>
+		$(document).ready(function () {
+    
+				var $id = $("#id_fis").val();
+				
+				var $status = $("#is_staff").val();
+				//alert($status);
+				if ($id != "" && $status == "False") {
+				
+						$.fancybox({
+							'autoScale': true,
+							'href': '#search_password_f',
+							'type': 'inline',
+							'hideOnContentClick': true,
+							'transitionIn': 'fade',
+							'transitionOut': 'fade',
+							'openSpeed': 1000,
+							'closeSpeed': 1000,
+							'maxWidth': 1000,
+							'maxHeight': 700,
+							//'width': '960%',
+							//'height': '70%',
+							'helpers': {overlay: {closeClick: false}},
+							'beforeShow': function () {
+							$.fancybox.showLoading();
+							},
+							'afterShow': function () {
+							$.fancybox.hideLoading();
+							},
+							'beforeClose': function () {
+							$('div').removeClass('has-error');
+							}
+						
+						});
+				
+				}
+				
+				$(".actualizar_passwd_new").click(function () {
+				
+						$.fancybox({
+							'autoScale': true,
+							'href': '#search_password_f',
+							'type': 'inline',
+							'hideOnContentClick': true,
+							'transitionIn': 'fade',
+							'transitionOut': 'fade',
+							'openSpeed': 1000,
+							'closeSpeed': 1000,
+							'maxWidth': 960,
+							'maxHeight': 600,
+							'width': '960%',
+							'height': '70%',
+							'helpers': {overlay: {closeClick: false}},
+							'beforeShow': function () {
+							$.fancybox.showLoading();
+							},
+							'afterShow': function () {
+							$.fancybox.hideLoading();
+							},
+							'beforeClose': function () {
+							$('div').removeClass('has-error');
+							}
+						});
+				});
+				
+				$(".actualizar_passwd").click(function () {
+				var $id = $("#id_fis");
+				var $password = $("#password_f");
+				var $password_new = $("#password_new");
+				var $password_new_r = $("#password_new_r");
+						if ($password.val() == "") {
+							
+							bootbox.alert("Debe ingresar su contraseña anterior", function () {
+							}).on('hidden.bs.modal', function (event) {
+							$("#password_f").parent('div').addClass('has-error')
+							$('#password_f').val('')
+							$("#password_f").focus();
+							});
+							
+						} else if ($password_new.val() == "") {
+							
+							bootbox.alert("Debe ingresar su contraseña nueva", function () {
+							}).on('hidden.bs.modal', function (event) {
+							$("#password_new").parent('div').addClass('has-error')
+							$('#password_new').val()
+							$("#password_new").focus();
+							});
+							
+						} else if ($password_new_r.val() == "") {
+							
+							bootbox.alert("Repita su contraseña nueva", function () {
+							}).on('hidden.bs.modal', function (event) {
+							$("#password_new_r").parent('div').addClass('has-error')
+							$('#password_new_r').val()
+							$("#password_new_r").focus();
+							});
+							
+						} else if ($password_new.val() != $password_new_r.val()) {
+							
+							bootbox.alert("Disculpe, las contraseñas no coinciden", function () {
+							}).on('hidden.bs.modal', function (event) {
+							$("#password_new").parent('div').addClass('has-error')
+							$('#password_new').val()
+							$("#password_new").focus();
+							});
+							
+						} else {
+								var data_send = $('#search_password_f').serialize().trim() + '&' + $.param({accion: 'buscar', 'csrfmiddlewaretoken': "{{ csrf_token }}"});
+								//alert("DATA: "+data_send);
+								$.post("/nuevo_usuario/", data_send, function (response) {
+										if (response == 'no_existe') {
+											
+											bootbox.alert("Disculpe, la contraseña anterior no es correcta", function () {
+											}).on('hidden.bs.modal', function (event) {
+											$("#password_f").parent('div').addClass('has-error')
+											$('#password_f').val('')
+											$("#password_f").focus();
+											});
+											
+										} else {
+											
+											bootbox.alert("Cambio de contraseña exitoso", function () {
+											}).on('hidden.bs.modal', function (event) {
+											window.location = '/logout'
+											});
+											
+										}
+								});    
+						}
+				});
+				
+		});	
+</script>
+
+<body>
+		{% load templatag_grupos %}
+		<header>
+		<nav class="navbar " style="background: linear-gradient(#ef1426, #a60101)" role="navigation">
+				<div id="navbar" class="navbar-collapse collapse">
+						{% if user.is_authenticated %}
+							<ul class="nav navbar-nav" style="float:left; font-size: 16px">
+								<li id='id_inicio'>
+									<a href='/' style="color: white;font-weight: bold;"><span class="glyphicon glyphicon-home" style="color: white"></span>&nbsp;&nbsp;</a>
+								</li>
+								
+								<li class="dropdown">
+										<a href="#" style="color: white;font-weight: bold" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="glyphicon glyphicon-plus"></i>&nbsp; Registros <span class="caret"></span></a>
+											
+										<ul class="dropdown-menu" role="menu" style="font-size: 16px">
+												{% ifusergroup Atencion %}
+														<li><a href='/menu/registros/solicitud/listar/'><span class="fa fa-pencil"></span>&nbsp;Solicitud</a></li>
+												{% endifusergroup %}
+												{% ifusergroup Soporte %}
+														<li><a href='/menu/registros/soporte/'><span class="fa fa-pencil"></span>&nbsp;Soporte</a></li>
+												{% endifusergroup %}
+										</ul>
+								</li>
+								<li class="dropdown">
+										<a href='#' style="color: white;font-weight: bold" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-bar-chart"></i>&nbsp;Reportes</a>
+										
+										<ul class="dropdown-menu" role="menu" style="font-size: 16px">
+												{% ifusergroup Atencion %}
+														<li><a href='/menu/reportes/reportes_solicitudes/'><span class="fa fa-list"></span>&nbsp;Solicitud</a></li>
+												{% endifusergroup %}
+												{% ifusergroup Soporte %}
+														<li><a href='/menu/reportes/reportes_soportes/'><span class="fa fa-list"></span>&nbsp;Soporte</a></li>
+												{% endifusergroup %}
+										</ul>
+								</li>
+																
+								{% ifusergroup Administrador %}
+								<li class="dropdown">
+									<a style="color: white;font-weight: bold" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cog"></i>&nbsp;Configuraciones <span class="caret"></span></a>
+									<ul class="dropdown-menu" role="menu" style="font-size: 16px">
+										<li><a href='/menu/configuraciones/tipo_educacion/listar/'><i class="fa fa-graduation-cap" ></i>&nbsp;Tipo de Educación</a></li>
+										<li><a href='/menu/configuraciones/grados/listar/'><i class="fa fa-list"></i>&nbsp;Grados</a></li>
+										<li><a href='/menu/configuraciones/modelos/listar/'><i class="glyphicon glyphicon-list-alt" ></i>&nbsp;Modelos</a></li>
+										<li><a href='/menu/configuraciones/instituciones/' ><i class="fa fa-university"></i>&nbsp;Instituciones</a></li>
+									</ul>
+								</li>
+								<li class="dropdown">
+									<a href="#" style="color: white;font-weight: bold" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-globe"></i>&nbsp;Topología<span class="caret"></span></a>
+									<ul class="dropdown-menu" role="menu" style="font-size: 16px">
+										<li><a href="/menu/topologia/estados/"><i class="fa fa-globe"></i>&nbsp;Estados</a></li>
+										<li><a href="/menu/topologia/municipios/"><i class="fa fa-globe"></i>&nbsp;Municipios</a></li>
+										<li><a href="/menu/topologia/parroquias/"><i class="fa fa-globe"></i>&nbsp;Parroquias</a></li>
+									</ul>
+								</li>
+								<li id='id_inicio'>
+									<a href='/nuevo_usuario' style="color: white;font-weight: bold">
+										<i class="glyphicon glyphicon-user"></i>&nbsp;Usuarios
+									</a>
+								</li>
+								{% endifusergroup %}
+								
+								{% if user.is_staff == True %}
+										<li>
+												<a style='cursor:pointer;color: white;font-weight: bold' class='actualizar_passwd_new' title='Cambiar contraseña de {{user.first_name}} {{user.last_name}}'>Cambiar contraseña</a>
+										</li>
+								{% endif %}
+							</ul>
+							
+							<ul class="nav navbar-nav navbar-right" style="font-size: 16px">
+								<li>
+										<a href="/logout" style="color: white;font-weight: bold">
+												<span class='glyphicon glyphicon-log-out' style="color: white;">
+														
+												</span>&nbsp;&nbsp;&nbsp;{{ user|upper }}
+										</a>
+								</li>
+							</ul>
+						{% endif %}
+				</div>
+		</nav>
+		
+		<!-- =========================================================== -->
+
+		{% if user.is_authenticated %}
+		<!--Apertura de Proceso para realizar el cambio de la contraseña a todos los usuarios-->
+		
+		
+		<form class="navbar-form navbar-left" role="search" id='search_password_f' style='display: none;'>
+		<div class="panel-body">
+			<div class="form-inline">
+			<div class="form-group col-xs-12">
+				<fieldset>
+				<legend>
+					Cambio de contraseña
+				</legend>
+				</fieldset>
+			</div>
+			</div>
+			<br/>
+			<br/>
+			<div class="form-inline">
+			<div class="form-group col-xs-12">
+				<label>Contraseña anterior&nbsp;&nbsp;&nbsp;</label>
+				<input type="password" id='password_f' name='password_f' class="form-control" placeholder="Contraseña anterior" autofocus='autofocus' style='width: 50%'>
+			</div>
+			</div>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<div class="form-inline">
+			<div class="form-group col-xs-12">
+				<label>Contraseña nueva&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+				<input type="password" id='password_new' name='password' class="form-control" placeholder="Contraseña nueva" style='width: 50%'/>
+			</div>
+			</div>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<div class="form-inline">
+			<div class="form-group col-xs-12">
+				<label>Repetir contraseña&nbsp;&nbsp;&nbsp;&nbsp;</label>
+				<input type="password" id='password_new_r' class="form-control" placeholder="Repita su contraseña" style='width: 50%'/>
+			</div>
+			</div>
+			<br/>
+			<br/>
+			<br/>
+			<div class='div_button' style='margin-left: 30%'>
+				<div class="form-inline">
+					<div class="form-group col-xs-12">
+						<input type='hidden' id='id_fis' name='id_fis' value='{{user.username}}'/>
+						<input type='hidden' id='is_staff' value='{{user.is_staff}}'/>
+						<button type="button" class="btn btn-primary actualizar_passwd titulo_pass">Cambiar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		</form>
+		
+		<!--Cierre de Proceso para realizar el cambio de la contraseña a todos los usuarios-->
+		{% endif %}
+		
+		<center>
+				<div class="text-center" style="width: 95%" >
+						{% block contenido %}{% endblock contenido %}
+				</div>
+		</center>
+		<div id="footer" style="text-align:center;">
+            <img src="{{ STATIC_URL }}img/footer.png" style="width: 100%" />
+        </div>
+    </header>
+</body>
+</html>
+
+
